@@ -11,6 +11,7 @@ import android.provider.MediaStore
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.*
 import java.text.DateFormat
@@ -19,13 +20,14 @@ import kotlin.math.max
 import kotlin.math.min
 
 
+const val EXTRA_IMAGE_URI = "ru.imageella.editorium.IMAGE_URI"
+
 class MainActivity : AppCompatActivity() {
 
 
     private val RESULT_LOAD_IMG = 1
     private val REQUEST_IMAGE_CAPTURE = 2
 
-    private lateinit var currentBitmap: Bitmap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,46 +61,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        saveBtn.setOnClickListener {
-            val sd = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val dest = File(sd, "my_pic.jpg")
-            try {
-                FileOutputStream(dest).use { out ->
-                    currentBitmap.compress(
-                        Bitmap.CompressFormat.JPEG,
-                        95,
-                        out
-                    )
-                }
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+
+    }
+
+
+    private fun openProcessImage(uri: Uri) {
+        val intent = Intent(this, ProcessImageActivity::class.java).apply {
+            putExtra(EXTRA_IMAGE_URI, uri)
         }
-
-        editBtn.setOnClickListener {
-            val w = currentBitmap.width
-            val h = currentBitmap.height
-            val pixels = IntArray(w * h)
-            currentBitmap.getPixels(pixels, 0, w, 0, 0, w, h)
-
-
-            val newPixels = IntArray(w * h)
-            for (x in 0 until w) {
-                for (y in 0 until h) {
-                    val nx = h - 1 - y
-                    val ny = x
-
-//                    pixels[i] = Color.argb(Color.alpha(pixels[i]), Color.red(pixels[i]), 0, 0)
-
-                    val i = y * w + x
-                    val ni = ny * h + nx
-                    newPixels[ni] = pixels[i]
-                }
-            }
-
-            currentBitmap = Bitmap.createBitmap(newPixels, h, w, currentBitmap.config)
-            currentImage.setImageBitmap(currentBitmap)
-        }
+        startActivity(intent)
     }
 
     override fun onActivityResult(reqCode: Int, resultCode: Int, data: Intent?) {
@@ -108,10 +79,7 @@ class MainActivity : AppCompatActivity() {
                 try {
                     val imageUri: Uri? = data?.data
                     if (imageUri != null) {
-                        val imageStream: InputStream? = contentResolver.openInputStream(imageUri)
-                        val selectedImage = BitmapFactory.decodeStream(imageStream)
-                        currentBitmap = selectedImage
-                        currentImage.setImageBitmap(selectedImage)
+                        openProcessImage(imageUri)
                     }
                 } catch (e: FileNotFoundException) {
                     e.printStackTrace()
@@ -122,7 +90,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         if (reqCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            setPic()
+            openProcessImage(File(currentPhotoPath).toUri())
         }
     }
 
@@ -143,26 +111,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setPic() {
-        // Get the dimensions of the View
-        val targetW: Int = currentImage.width
-        val targetH: Int = currentImage.height
 
-        val bmOptions = BitmapFactory.Options().apply {
-            // Get the dimensions of the bitmap
-
-            currentBitmap = BitmapFactory.decodeFile(currentPhotoPath, this)
-
-            val photoW: Int = outWidth
-            val photoH: Int = outHeight
-
-            // Determine how much to scale down the image
-            val scaleFactor: Int = max(1, min(photoW / targetW, photoH / targetH))
-
-            inSampleSize = scaleFactor
-        }
-        BitmapFactory.decodeFile(currentPhotoPath, bmOptions)?.also { bitmap ->
-            currentImage.setImageBitmap(bitmap)
-        }
-    }
 }
