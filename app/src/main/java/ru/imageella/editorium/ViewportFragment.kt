@@ -1,13 +1,16 @@
 package ru.imageella.editorium
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.View
+import androidx.core.graphics.scale
 import androidx.fragment.app.Fragment
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.imageella.editorium.databinding.FragmentViewportBinding
 import ru.imageella.editorium.interfaces.Viewport
 import ru.imageella.editorium.interfaces.ImageHandler
+import kotlin.math.min
 
 class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
 
@@ -23,13 +26,33 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setBitmap((activity as ImageHandler).getBitmap())
+        binding.root.post {
+            setBitmap((activity as ImageHandler).getBitmap())
+        }
     }
 
     override fun setBitmap(bitmap: Bitmap) {
-        binding.currentImage.setImageBitmap(bitmap)
+
+        val scaleFactor = min(
+            bitmap.width.toDouble() / binding.root.width,
+            bitmap.height.toDouble() / binding.root.height
+        )
+
+        if (scaleFactor > 1) {
+            binding.currentImage.setImageBitmap(
+                bitmap.scale(
+                    (bitmap.width / scaleFactor).toInt(),
+                    (bitmap.height / scaleFactor).toInt(),
+                    false
+                )
+            )
+        } else {
+            binding.currentImage.setImageBitmap(bitmap)
+        }
+
         binding.imgInfoTV.text = "${bitmap.width} x ${bitmap.height} px"
     }
+
 
     override fun previewRotate(angle: Float) {
         binding.currentImage.rotation = angle
