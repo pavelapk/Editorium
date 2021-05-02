@@ -19,6 +19,7 @@ import ru.imageella.editorium.interfaces.Viewport
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.interfaces.ToolSelectListener
 import ru.imageella.editorium.tools.RotateFragment
+import ru.imageella.editorium.tools.ScaleFragment
 import java.io.InputStream
 
 
@@ -141,7 +142,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         }
     }
 
-    override fun onToolClick() {
+    override fun onToolClick(taskNum: Int) {
         lastBitmap = currentBitmap.copy(currentBitmap.config, false)
 
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_cancel_24)
@@ -153,7 +154,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
         supportFragmentManager.commit {
             setReorderingAllowed(true)
-            replace(R.id.toolsFragment, RotateFragment.newInstance(), RotateFragment.TAG)
+            when (taskNum) {
+                1 -> replace(R.id.toolsFragment, RotateFragment.newInstance(), RotateFragment.TAG)
+                3 -> replace(R.id.toolsFragment, ScaleFragment.newInstance(), ScaleFragment.TAG)
+            }
+
         }
     }
 
