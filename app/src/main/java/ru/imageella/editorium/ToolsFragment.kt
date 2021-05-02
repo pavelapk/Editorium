@@ -22,7 +22,11 @@ class ToolsFragment : Fragment(R.layout.fragment_tools) {
         super.onViewCreated(view, savedInstanceState)
 
         binding.rotateToolBtn.setOnClickListener {
-            (activity as? ToolSelectListener)?.onToolClick()
+            (activity as? ToolSelectListener)?.onToolClick(1)
+        }
+
+        binding.scaleToolBtn.setOnClickListener {
+            (activity as? ToolSelectListener)?.onToolClick(3)
         }
     }
 
