@@ -133,7 +133,6 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
         return PixelsWithSizes(newPic, nw, nh)
     }
 
-
     private fun setPreviewRotation(angle: Int) {
         image.previewRotate(angle.toFloat())
         binding.angleTV.text = angle.toString()
