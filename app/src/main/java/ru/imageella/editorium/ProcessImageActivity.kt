@@ -3,16 +3,18 @@ package ru.imageella.editorium
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_process_image.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.roundToInt
+
 
 class ProcessImageActivity : AppCompatActivity() {
 
@@ -30,6 +32,7 @@ class ProcessImageActivity : AppCompatActivity() {
             currentBitmap = BitmapFactory.decodeStream(imageStream)
             currentImage.setImageBitmap(currentBitmap)
         }
+
         saveBtn.setOnClickListener {
             val sd = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
             val dest = File(sd, "my_pic.jpg")
@@ -46,28 +49,40 @@ class ProcessImageActivity : AppCompatActivity() {
             }
         }
 
+        var currentRatio = 1f
+        val seekBarChangeListener: OnSeekBarChangeListener = object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                currentRatio = ( seekBar.progress.toFloat() + 1 )  / 4
+                ratioText.text = currentRatio.toString()
+            }
+        }
+
+        ratioSeekBar.setOnSeekBarChangeListener(seekBarChangeListener)
+
+
         editBtn.setOnClickListener {
             val w = currentBitmap.width
             val h = currentBitmap.height
             val pixels = IntArray(w * h)
+
+            val nw = (w * currentRatio).roundToInt()
+            val nh = (h * currentRatio).roundToInt()
             currentBitmap.getPixels(pixels, 0, w, 0, 0, w, h)
-
-
-            val newPixels = IntArray(w * h)
-            for (x in 0 until w) {
-                for (y in 0 until h) {
-                    val nx = h - 1 - y
-                    val ny = x
-
-//                    pixels[i] = Color.argb(Color.alpha(pixels[i]), Color.red(pixels[i]), 0, 0)
+            val newPixels = IntArray(nw * nh)
+            for (nx in 0 until nw) {
+                for (ny in 0 until nh) {
+                    val x = (nx / currentRatio).toInt()
+                    val y = (ny / currentRatio).toInt()
 
                     val i = y * w + x
-                    val ni = ny * h + nx
+                    val ni = ny * nw + nx
                     newPixels[ni] = pixels[i]
                 }
             }
 
-            currentBitmap = Bitmap.createBitmap(newPixels, h, w, currentBitmap.config)
+            currentBitmap = Bitmap.createBitmap(newPixels, nw, nh, currentBitmap.config)
             currentImage.setImageBitmap(currentBitmap)
         }
     }
