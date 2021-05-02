@@ -1,0 +1,29 @@
+package ru.imageella.editorium
+
+import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.Fragment
+import by.kirich1409.viewbindingdelegate.viewBinding
+import ru.imageella.editorium.databinding.FragmentToolsBinding
+import ru.imageella.editorium.interfaces.ToolSelectListener
+
+class ToolsFragment : Fragment(R.layout.fragment_tools) {
+
+    private val binding by viewBinding(FragmentToolsBinding::bind, R.id.rootLayout)
+
+    companion object {
+        val TAG: String = ToolsFragment::class.java.simpleName
+
+        fun newInstance() = ToolsFragment()
+
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.rotateToolBtn.setOnClickListener {
+            (activity as? ToolSelectListener)?.onToolClick()
+        }
+    }
+
+}

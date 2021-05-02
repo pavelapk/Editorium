@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <group android:id="@+id/mainActionsGroup">
+        <item
+            android:id="@+id/actionUndo"
+            android:icon="@drawable/ic_undo_24"
+            android:title="Отменить"
+            app:showAsAction="ifRoom" />
+        <item
+            android:id="@+id/actionRedo"
+            android:icon="@drawable/ic_redo_24"
+            android:title="Вернуть"
+            app:showAsAction="ifRoom" />
+        <item
+            android:id="@+id/actionSave"
+            android:icon="@drawable/ic_save_24"
+            android:title="Сохранить"
+            app:showAsAction="always" />
+    </group>
+    <group
+        android:id="@+id/toolActionsGroup"
+        android:visible="false">
+        <item
+            android:id="@+id/actionDone"
+            android:icon="@drawable/ic_done_24"
+            android:title="Применить"
+            app:showAsAction="always" />
+    </group>
+</menu>
