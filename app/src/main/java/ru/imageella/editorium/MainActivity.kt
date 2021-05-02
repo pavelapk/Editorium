@@ -15,7 +15,7 @@ import androidx.fragment.app.commit
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.imageella.editorium.databinding.ActivityMainBinding
 import ru.imageella.editorium.interfaces.Algorithm
-import ru.imageella.editorium.interfaces.Canvas
+import ru.imageella.editorium.interfaces.Viewport
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.interfaces.ToolSelectListener
 import ru.imageella.editorium.tools.RotateFragment
@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
     private var lastBitmap: Bitmap? = null
     private lateinit var currentBitmap: Bitmap
-    private lateinit var canvas: Canvas
+    private lateinit var viewport: Viewport
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,15 +49,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
             Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
         }
 
-        val canvasFragment = CanvasFragment.newInstance()
+        val viewportFragment = ViewportFragment.newInstance()
 
         supportFragmentManager.commit {
             setReorderingAllowed(true)
-            add(R.id.canvasFragment, canvasFragment, CanvasFragment.TAG)
-            add(R.id.toolsFragment, ToolsFragment.newInstance(), CanvasFragment.TAG)
+            add(R.id.viewportFragment, viewportFragment, ViewportFragment.TAG)
+            add(R.id.toolsFragment, ToolsFragment.newInstance(), ViewportFragment.TAG)
         }
 
-        canvas = canvasFragment
+        viewport = viewportFragment
     }
 
     private var toolbarMenu: Menu? = null
@@ -159,13 +159,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
     override fun setBitmap(bitmap: Bitmap) {
         currentBitmap = bitmap
-        canvas.setBitmap(currentBitmap)
+        viewport.setBitmap(currentBitmap)
     }
 
     override fun getBitmap() = currentBitmap
 
     override fun previewRotate(angle: Float) {
-        canvas.previewRotate(angle)
+        viewport.previewRotate(angle)
     }
 
 }
