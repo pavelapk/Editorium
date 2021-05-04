@@ -173,4 +173,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         viewport.previewRotate(angle)
     }
 
+    override fun previewScale(ratio: Float) {
+        viewport.previewScale(ratio)
+    }
+
 }

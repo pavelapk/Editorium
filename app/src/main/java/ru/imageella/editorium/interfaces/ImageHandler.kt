@@ -6,4 +6,5 @@ interface ImageHandler {
     fun setBitmap(bitmap: Bitmap)
     fun getBitmap(): Bitmap
     fun previewRotate(angle: Float)
+    fun previewScale(ratio: Float)
 }
