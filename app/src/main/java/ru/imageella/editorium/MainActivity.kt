@@ -18,7 +18,6 @@ import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.Viewport
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.interfaces.ToolSelectListener
-import ru.imageella.editorium.tools.AffineFragment
 import ru.imageella.editorium.tools.RotateFragment
 import ru.imageella.editorium.tools.ScaleFragment
 import java.io.InputStream
@@ -161,7 +160,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
             when (taskNum) {
                 1 -> replace(R.id.toolsFragment, RotateFragment.newInstance(), RotateFragment.TAG)
                 3 -> replace(R.id.toolsFragment, ScaleFragment.newInstance(), ScaleFragment.TAG)
-                8 -> replace(R.id.toolsFragment, AffineFragment.newInstance(), AffineFragment.TAG)
             }
 
         }
@@ -176,6 +174,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
     override fun previewRotate(angle: Float) {
         viewport.previewRotate(angle)
+    }
+
+    override fun previewScale(ratio: Float) {
+        viewport.previewScale(ratio)
     }
 
     override fun onImageClick(x: Float, y: Float) {

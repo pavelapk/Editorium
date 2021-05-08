@@ -110,12 +110,16 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
         binding.imgInfoTV.text = "${bitmap.width} x ${bitmap.height} px"
     }
 
-
     override fun previewRotate(angle: Float) {
         binding.currentImage.rotation = angle
         binding.previewWarningTV.visibility =
             if (angle % 360 != 0f) View.VISIBLE else View.INVISIBLE
     }
 
-
+    override fun previewScale(ratio: Float) {
+        binding.currentImage.scaleX = ratio
+        binding.currentImage.scaleY = ratio
+        binding.previewWarningTV.visibility =
+            if (ratio != 1f) View.VISIBLE else View.INVISIBLE
+    }
 }
