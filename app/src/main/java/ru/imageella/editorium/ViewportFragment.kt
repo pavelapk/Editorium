@@ -41,20 +41,9 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
     }
 
     override fun previewScale(ratio: Float) {
-        val checkImage = binding.currentImage.drawable
-//        val bmHalf = Bitmap.createScaledBitmap(
-//            binding.currentImage.drawToBitmap(),
-//            (binding.currentImage.width * ratio).toInt(),
-//            (binding.currentImage.height * ratio).toInt(),
-//            false
-//        )
         binding.currentImage.scaleX = ratio
         binding.currentImage.scaleY = ratio
         binding.previewWarningTV.visibility =
-            if (ratio == 1f) View.VISIBLE else View.INVISIBLE
-//        binding.currentImage.setImageBitmap(bmHalf)
-//        binding.currentImage.setImageDrawable(checkImage);
+            if (ratio != 1f) View.VISIBLE else View.INVISIBLE
     }
-
-
 }
