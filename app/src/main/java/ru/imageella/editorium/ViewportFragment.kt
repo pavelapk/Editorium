@@ -45,14 +45,16 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
                     (activity as ImageHandler).onImageClick(event.x, event.y)
                     (activity as ImageHandler).onImageTouchMove(
                         event.x / v.width,
-                        event.y / v.height
+                        event.y / v.height,
+                        true
                     )
                     v.performClick()
                 }
                 MotionEvent.ACTION_MOVE -> {
                     (activity as ImageHandler).onImageTouchMove(
                         event.x / v.width,
-                        event.y / v.height
+                        event.y / v.height,
+                        false
                     )
                 }
             }
@@ -67,6 +69,12 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
         canvas.drawPoint(x, y, paint)
     }
 
+    override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float, width: Float, color: Int) {
+        paint.strokeWidth = width
+        paint.color = color
+        canvas.drawLine(x1, y1, x2, y2, paint)
+    }
+
     override fun clearOverlay() {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
     }
@@ -75,7 +83,6 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
         binding.overlayImage.invalidate()
     }
 
-
     override fun setBitmap(bitmap: Bitmap) {
 
         val scaleFactor = min(
@@ -83,14 +90,10 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
             bitmap.height.toDouble() / binding.root.height
         )
 
-        val size = if (scaleFactor > 1) {
-            Pair(
-                (bitmap.width / scaleFactor).toInt(),
-                (bitmap.height / scaleFactor).toInt()
-            )
-        } else {
-            Pair(bitmap.width, bitmap.height)
-        }
+        val size = Pair(
+            (bitmap.width / scaleFactor).toInt(),
+            (bitmap.height / scaleFactor).toInt()
+        )
 
         binding.currentImage.setImageBitmap(
             bitmap.scale(size.first, size.second, false)
@@ -116,6 +119,8 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
         binding.previewWarningTV.visibility =
             if (angle % 360 != 0f) View.VISIBLE else View.INVISIBLE
     }
+
+    override fun getOverlaySize() = Pair(binding.overlayImage.width, binding.overlayImage.height)
 
 
 }

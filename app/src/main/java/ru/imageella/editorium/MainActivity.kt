@@ -18,7 +18,7 @@ import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.Viewport
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.interfaces.ToolSelectListener
-import ru.imageella.editorium.tools.AffineFragment
+import ru.imageella.editorium.tools.CubeFragment
 import ru.imageella.editorium.tools.RotateFragment
 import ru.imageella.editorium.tools.ScaleFragment
 import java.io.InputStream
@@ -55,8 +55,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
         supportFragmentManager.commit {
             setReorderingAllowed(true)
-            add(R.id.viewportFragment, viewportFragment, ViewportFragment.TAG)
-            add(R.id.toolsFragment, ToolsFragment.newInstance(), ViewportFragment.TAG)
+            replace(R.id.viewportFragment, viewportFragment, ViewportFragment.TAG)
+            replace(R.id.toolsFragment, ToolsFragment.newInstance(), ViewportFragment.TAG)
         }
 
         viewport = viewportFragment
@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
             when (taskNum) {
                 1 -> replace(R.id.toolsFragment, RotateFragment.newInstance(), RotateFragment.TAG)
                 3 -> replace(R.id.toolsFragment, ScaleFragment.newInstance(), ScaleFragment.TAG)
-                8 -> replace(R.id.toolsFragment, AffineFragment.newInstance(), AffineFragment.TAG)
+                9 -> replace(R.id.toolsFragment, CubeFragment.newInstance(), CubeFragment.TAG)
             }
 
         }
@@ -178,16 +178,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         viewport.previewRotate(angle)
     }
 
+    override fun getOverlaySize() = viewport.getOverlaySize()
+
     override fun onImageClick(x: Float, y: Float) {
         getCurrentToolFragment()?.onImageClick(x, y)
     }
 
-    override fun onImageTouchMove(x: Float, y: Float) {
-        getCurrentToolFragment()?.onImageTouchMove(x, y)
+    override fun onImageTouchMove(x: Float, y: Float, isStart: Boolean) {
+        getCurrentToolFragment()?.onImageTouchMove(x, y, isStart)
     }
 
     override fun drawPoint(x: Float, y: Float, width: Float, color: Int) {
         viewport.drawPoint(x, y, width, color)
+    }
+
+    override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float, width: Float, color: Int) {
+        viewport.drawLine(x1, y1, x2, y2, width, color)
     }
 
     override fun clearOverlay() {

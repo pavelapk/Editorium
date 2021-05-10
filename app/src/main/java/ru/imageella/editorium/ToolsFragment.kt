@@ -28,6 +28,9 @@ class ToolsFragment : Fragment(R.layout.fragment_tools) {
         binding.scaleToolBtn.setOnClickListener {
             (activity as? ToolSelectListener)?.onToolClick(3)
         }
+        binding.cubeToolBtn.setOnClickListener {
+            (activity as? ToolSelectListener)?.onToolClick(9)
+        }
     }
 
 }
