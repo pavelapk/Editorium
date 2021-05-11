@@ -24,16 +24,14 @@ class ToolsFragment : Fragment(R.layout.fragment_tools) {
         binding.rotateToolBtn.setOnClickListener {
             (activity as? ToolSelectListener)?.onToolClick(1)
         }
-
         binding.scaleToolBtn.setOnClickListener {
             (activity as? ToolSelectListener)?.onToolClick(3)
         }
-        binding.cubeToolBtn.setOnClickListener {
-            (activity as? ToolSelectListener)?.onToolClick(9)
-        }
-
         binding.affineToolBtn.setOnClickListener {
             (activity as? ToolSelectListener)?.onToolClick(8)
+        }
+        binding.cubeToolBtn.setOnClickListener {
+            (activity as? ToolSelectListener)?.onToolClick(9)
         }
     }
 
