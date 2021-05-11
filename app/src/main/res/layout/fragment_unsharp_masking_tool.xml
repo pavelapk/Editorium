@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SeekBar
+        android:id="@+id/coefSeekBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:max="30"
+        android:progress="0"
+        app:layout_constraintBottom_toTopOf="@+id/maskBtn"
+        app:layout_constraintEnd_toStartOf="@+id/textViewForCoef"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sigmaSeekBar2" />
+
+    <SeekBar
+        android:id="@+id/sigmaSeekBar2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:max="20"
+        android:progress="0"
+        app:layout_constraintBottom_toTopOf="@+id/coefSeekBar"
+        app:layout_constraintEnd_toStartOf="@+id/textViewForSigma"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/maskBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/coefSeekBar" />
+
+    <TextView
+        android:id="@+id/textViewForSigma"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:text="sigma"
+        app:layout_constraintBottom_toBottomOf="@+id/sigmaSeekBar2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/sigmaSeekBar2" />
+
+    <TextView
+        android:id="@+id/textViewForCoef"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:text="coefficient"
+        app:layout_constraintBottom_toBottomOf="@+id/coefSeekBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/coefSeekBar" />
+</androidx.constraintlayout.widget.ConstraintLayout>

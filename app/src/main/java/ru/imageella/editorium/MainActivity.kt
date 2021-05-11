@@ -18,10 +18,7 @@ import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.Viewport
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.interfaces.ToolSelectListener
-import ru.imageella.editorium.tools.AffineFragment
-import ru.imageella.editorium.tools.CubeFragment
-import ru.imageella.editorium.tools.RotateFragment
-import ru.imageella.editorium.tools.ScaleFragment
+import ru.imageella.editorium.tools.*
 import java.io.InputStream
 
 
@@ -161,7 +158,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
             setReorderingAllowed(true)
             when (taskNum) {
                 1 -> replace(R.id.toolsFragment, RotateFragment.newInstance(), RotateFragment.TAG)
+                2 -> replace(R.id.toolsFragment, FiltersFragment.newInstance(), FiltersFragment.TAG)
                 3 -> replace(R.id.toolsFragment, ScaleFragment.newInstance(), ScaleFragment.TAG)
+                6 -> replace(R.id.toolsFragment, RetouchingFragment.newInstance(), RetouchingFragment.TAG)
+                7 -> replace(R.id.toolsFragment, UnsharpMaskingFragment.newInstance(), UnsharpMaskingFragment.TAG)
                 8 -> replace(R.id.toolsFragment, AffineFragment.newInstance(), AffineFragment.TAG)
                 9 -> replace(R.id.toolsFragment, CubeFragment.newInstance(), CubeFragment.TAG)
             }
@@ -185,6 +185,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
     }
 
     override fun getOverlaySize() = viewport.getOverlaySize()
+
+    override fun getLastBitmap() = lastBitmap ?: currentBitmap
 
     override fun onImageClick(x: Float, y: Float) {
         getCurrentToolFragment()?.onImageClick(x, y)
