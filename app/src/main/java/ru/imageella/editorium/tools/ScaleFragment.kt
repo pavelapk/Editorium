@@ -7,7 +7,6 @@ import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.imageella.editorium.R
-import ru.imageella.editorium.databinding.FragmentRotateToolBinding
 import ru.imageella.editorium.databinding.FragmentScaleToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler

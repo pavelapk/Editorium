@@ -25,8 +25,17 @@ class ToolsFragment : Fragment(R.layout.fragment_tools) {
             (activity as? ToolSelectListener)?.onToolClick(1)
         }
 
+        binding.filtersToolBtn.setOnClickListener {
+            (activity as? ToolSelectListener)?.onToolClick(2)
+        }
         binding.scaleToolBtn.setOnClickListener {
             (activity as? ToolSelectListener)?.onToolClick(3)
+        }
+        binding.retouchingToolBtn.setOnClickListener {
+            (activity as? ToolSelectListener)?.onToolClick(6)
+        }
+        binding.unsharpMaskingToolBtn.setOnClickListener {
+            (activity as? ToolSelectListener)?.onToolClick(7)
         }
     }
 
