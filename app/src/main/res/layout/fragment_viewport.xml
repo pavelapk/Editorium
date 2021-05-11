@@ -14,7 +14,7 @@
         android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:background="@drawable/border"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_launcher_foreground"
         tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
