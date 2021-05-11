@@ -75,7 +75,7 @@
                 android:layout_weight="1"
                 android:padding="0dp"
                 android:scaleType="fitCenter"
-                app:srcCompat="@android:drawable/btn_star_big_on" />
+                android:src="@drawable/red" />
         </LinearLayout>
     </HorizontalScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

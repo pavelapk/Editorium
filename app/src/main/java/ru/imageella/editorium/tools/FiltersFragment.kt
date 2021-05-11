@@ -228,40 +228,15 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
                     val i = y * w + x
                     val oldPix: Int = pixels[i]
                     val oldRed: Int = Color.red(oldPix)
-                    val oldBlue: Int = Color.blue(oldPix)
-                    val oldGreen: Int = Color.green(oldPix)
                     val oldAlpha: Int = Color.alpha(oldPix)
-
-                    if (oldRed > 200) {
-                        val intensity: Int = (oldBlue + oldGreen + oldRed) / 3
-                        val newRed: Int = intensity
-                        val newBlue: Int = intensity
-                        val newGreen: Int = intensity
-
-                        pixels[i] = Color.argb(oldAlpha, newRed, newGreen, newBlue)
-                    }
+                    pixels[i] = Color.argb(oldAlpha, oldRed, 0, 0)
                 }
             }
             image.setBitmap(
                 Bitmap.createBitmap(pixels, w, h, image.getLastBitmap().config)
             )
         }
-        binding.filter6.setOnClickListener {
-            val w = image.getLastBitmap().width
-            val h = image.getLastBitmap().height
-            val pixels = IntArray(w * h)
-            image.getLastBitmap().getPixels(pixels, 0, w, 0, 0, w, h)
 
-            for (x in 0 until w) {
-                for (y in 0 until h) {
-                    val i = y * w + x
-                    pixels[i] = (pixels[i] and -0xff0100 or (pixels[i] and 0x000000ff shl 16) or (pixels[i] and 0x00ff0000 shr 16))
-                }
-            }
-            image.setBitmap(
-                Bitmap.createBitmap(pixels, w, h, image.getLastBitmap().config)
-            )
-        }
     }
 
     override fun doAlgorithm() {
