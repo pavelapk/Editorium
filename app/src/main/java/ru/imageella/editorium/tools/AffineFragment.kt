@@ -150,8 +150,8 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
                     s[0].x * s[1].y - s[2].y * s[0].x + s[2].x * s[0].y - s[2].x * s[1].y - s[1].x * s[0].y + s[2].y * s[1].x
                 return AffineMatrix(
                     (-s[0].y * e[1].x + s[0].y * e[2].x + s[1].y * e[0].x - s[1].y * e[2].x - s[2].y * e[0].x + s[2].y * e[1].x) / det,
-                    -(-s[0].y * e[1].y + s[0].y * e[2].y + s[1].y * e[0].y - s[1].y * e[2].y - s[2].y * e[0].y + s[2].y * e[1].y) / det,
-                    -(s[0].x * e[1].x - s[0].x * e[2].x + s[2].x * e[0].x - s[2].x * e[1].x - s[1].x * e[0].x + s[1].x * e[2].x) / det,
+                    (-s[0].y * e[1].y + s[0].y * e[2].y + s[1].y * e[0].y - s[1].y * e[2].y - s[2].y * e[0].y + s[2].y * e[1].y) / det,
+                    (s[0].x * e[1].x - s[0].x * e[2].x + s[2].x * e[0].x - s[2].x * e[1].x - s[1].x * e[0].x + s[1].x * e[2].x) / det,
                     (s[0].x * e[1].y - s[0].x * e[2].y + s[2].x * e[0].y - s[2].x * e[1].y - s[1].x * e[0].y + s[1].x * e[2].y) / det
                 )
             }
@@ -181,8 +181,8 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
     private fun applyMatrix(xy: Pair<Int, Int>, matrix: AffineMatrix): Pair<Int, Int> {
         val x = xy.first
         val y = xy.second
-        val nx = x * matrix.m0 + y * matrix.m1
-        val ny = x * matrix.m2 + y * matrix.m3
+        val nx = x * matrix.m0 + y * matrix.m2
+        val ny = x * matrix.m1 + y * matrix.m3
         return roundCoord(Pair(nx, ny))
     }
 
