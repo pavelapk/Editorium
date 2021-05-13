@@ -7,10 +7,13 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import by.kirich1409.viewbindingdelegate.viewBinding
+import ru.imageella.editorium.Filtering
+import ru.imageella.editorium.PixelsWithSizes
 import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentAffineToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -23,12 +26,6 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
 
         fun newInstance() = AffineFragment()
     }
-
-    class PixelsWithSizes(
-        val pixels: IntArray,
-        val w: Int,
-        val h: Int
-    )
 
     private lateinit var image: ImageHandler
 
@@ -173,17 +170,20 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         )
     }
 
+    private fun triangleArea(a: Point, b: Point, c: Point): Float {
+        return abs((a.x - c.x) * (b.y - c.y) - (b.x - c.x) * (a.y - c.y)) / 2
+    }
 
     private fun roundCoord(xy: Pair<Float, Float>): Pair<Int, Int> =
         Pair(xy.first.roundToInt(), xy.second.roundToInt())
 
 
-    private fun applyMatrix(xy: Pair<Int, Int>, matrix: AffineMatrix): Pair<Int, Int> {
+    private fun applyMatrix(xy: Pair<Int, Int>, matrix: AffineMatrix): Pair<Float, Float> {
         val x = xy.first
         val y = xy.second
         val nx = x * matrix.m0 + y * matrix.m2
         val ny = x * matrix.m1 + y * matrix.m3
-        return roundCoord(Pair(nx, ny))
+        return Pair(nx, ny)
     }
 
     private fun calcNewSizes(w: Int, h: Int): Array<Int> {
@@ -194,10 +194,10 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         val p2 = applyMatrix(Pair(w - 1, h - 1), matrix)
         val p3 = applyMatrix(Pair(0, h - 1), matrix)
 
-        val l = minOf(p0.first, p1.first, p2.first, p3.first)
-        val r = maxOf(p0.first, p1.first, p2.first, p3.first)
-        val t = minOf(p0.second, p1.second, p2.second, p3.second)
-        val b = maxOf(p0.second, p1.second, p2.second, p3.second)
+        val l = minOf(p0.first, p1.first, p2.first, p3.first).roundToInt()
+        val r = maxOf(p0.first, p1.first, p2.first, p3.first).roundToInt()
+        val t = minOf(p0.second, p1.second, p2.second, p3.second).roundToInt()
+        val b = maxOf(p0.second, p1.second, p2.second, p3.second).roundToInt()
 
         val nw = r - l + 1
         val nh = b - t + 1
@@ -209,16 +209,67 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         val h = pic.h
         val (nw, nh, l, t) = calcNewSizes(w, h)
         val matrix = AffineMatrix.calcMatrix(endPoints, startPoints)
-        Log.d("DAROVA", "2 ${matrix.m0}, ${matrix.m1}, ${matrix.m2}, ${matrix.m3}")
+//        Log.d("DAROVA", "2 ${matrix.m0}, ${matrix.m1}, ${matrix.m2}, ${matrix.m3}")
+        val oldArea = triangleArea(startPoints[0], startPoints[1], startPoints[2])
+        val newArea = triangleArea(endPoints[0], endPoints[1], endPoints[2])
+        Log.d("DAROVA", "transformPic: ${newArea / oldArea}")
         val newPic = IntArray(nw * nh)
-        for (nx in 0 until nw) {
-            for (ny in 0 until nh) {
-                val (x, y) = applyMatrix(Pair(nx + l, ny + t), matrix)
+//        for (nx in 0 until nw) {
+//            for (ny in 0 until nh) {
+//
+//
+//                if (x in 0 until w && y in 0 until h) {
+//                    val i = y * w + x
+//                    val ni = ny * nw + nx
+//                    newPic[ni] = pic.pixels[i]
+//                }
+//            }
+//        }
 
-                if (x in 0 until w && y in 0 until h) {
-                    val i = y * w + x
+        if (newArea / oldArea >= 1f) {
+            for (nx in 0 until nw) {
+                for (ny in 0 until nh) {
                     val ni = ny * nw + nx
-                    newPic[ni] = pic.pixels[i]
+                    val (x, y) = applyMatrix(Pair(nx + l, ny + t), matrix)
+                    if (0 <= x && x < w && 0 <= y && y < h) {
+                        newPic[ni] = Filtering.doBilinearFilteredPixelColor(
+                            pic,
+                            x,
+                            y
+                        )
+                    }
+                }
+            }
+        } else {
+            val k = oldArea / newArea
+            var m = 1
+            while (m <= k) {
+                m *= 2
+            }
+            m /= 2
+
+            var mPic = pic
+            var curM = 1
+            while (curM < m) {
+                mPic = Filtering.halfSize(mPic)
+                curM *= 2
+            }
+            val m2Pic = Filtering.halfSize(mPic)
+
+            for (nx in 0 until nw) {
+                for (ny in 0 until nh) {
+                    val ni = ny * nw + nx
+                    val (x, y) = applyMatrix(Pair(nx + l, ny + t), matrix)
+                    if (0 <= x && x < w && 0 <= y && y < h) {
+                        newPic[ni] = Filtering.doTrilinearFilteredPixelColor(
+                            mPic,
+                            m2Pic,
+                            m,
+                            k,
+                            x,
+                            y
+                        )
+                    }
                 }
             }
         }

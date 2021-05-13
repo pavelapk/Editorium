@@ -7,6 +7,10 @@ import android.view.View
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import by.kirich1409.viewbindingdelegate.viewBinding
+import ru.imageella.editorium.Filtering.Companion.doBilinearFilteredPixelColor
+import ru.imageella.editorium.Filtering.Companion.doTrilinearFilteredPixelColor
+import ru.imageella.editorium.Filtering.Companion.halfSize
+import ru.imageella.editorium.PixelsWithSizes
 import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentScaleToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
@@ -23,11 +27,6 @@ class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
         fun newInstance() = ScaleFragment()
     }
 
-    class PixelsWithSizes(
-        val pixels: IntArray,
-        val w: Int,
-        val h: Int
-    )
 
     private var currentRatio = 1f
     private lateinit var image: ImageHandler
@@ -81,13 +80,16 @@ class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
 //        }
 
         if (currentRatio >= 1f) {
+            val pic = PixelsWithSizes(
+                pixels,
+                width,
+                height
+            )
             for (nx in 0 until nw) {
                 for (ny in 0 until nh) {
                     val ni = ny * nw + nx
                     newPixels[ni] = doBilinearFilteredPixelColor(
-                        pixels,
-                        width,
-                        height,
+                        pic,
                         nx / currentRatio,
                         ny / currentRatio
                     )
@@ -133,95 +135,10 @@ class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
         )
     }
 
-    private fun halfSize(pic: PixelsWithSizes): PixelsWithSizes {
-        val w = pic.w
-        val h = pic.h
-        val nw = (w) / 2
-        val nh = (h) / 2
-        val newPic = IntArray(nw * nh)
-        for (nx in 0 until nw) {
-            for (ny in 0 until nh) {
-                val ni = ny * nw + nx
-                newPic[ni] = average4pix(pic, nx, ny)
-            }
-        }
-        return PixelsWithSizes(newPic, nw, nh)
-    }
-
-    private fun average4pix(pic: PixelsWithSizes, x: Int, y: Int): Int {
-        val p1 = y * 2 * pic.w + x * 2
-        val p2 = y * 2 * pic.w + (x * 2 + 1)
-        val p3 = (y * 2 + 1) * pic.w + x * 2
-        val p4 = (y * 2 + 1) * pic.w + (x * 2 + 1)
-        val result = IntArray(4)
-        for (c in 0 until 4) {
-            result[c] = (getColorChannel(pic.pixels[p1], c) + getColorChannel(pic.pixels[p2], c) +
-                    getColorChannel(pic.pixels[p3], c) + getColorChannel(pic.pixels[p4], c)) / 4
-        }
-        return Color.argb(result[0], result[1], result[2], result[3])
-    }
 
     private fun setPreviewRotation(ratio: Float) {
         image.previewScale(ratio)
     }
 
-    private fun doBilinearFilteredPixelColor(
-        pixels: IntArray,
-        w: Int,
-        h: Int,
-        x: Float,
-        y: Float
-    ): Int {
-        val floorX = x.toInt()
-        val floorY = y.toInt()
-        val ceilX = (x + 1).toInt()
-        val ceilY = (y + 1).toInt()
-        val n1 = floorY * w + floorX
-        val n2 = floorY * w + min(ceilX, w - 1)
-        val n3 = min(ceilY, h - 1) * w + floorX
-        val n4 = min(ceilY, h - 1) * w + min(ceilX, w - 1)
-
-        val result = IntArray(4)
-        for (c in 0 until 4) {
-            val r1 = (getColorChannel(pixels[n1], c) * (ceilX - x) +
-                    getColorChannel(pixels[n2], c) * (x - floorX)) * (ceilY - y)
-            val r2 = (getColorChannel(pixels[n3], c) * (ceilX - x) +
-                    getColorChannel(pixels[n4], c) * (x - floorX)) * (y - floorY)
-            result[c] = (r1 + r2).toInt()
-        }
-        return Color.argb(result[0], result[1], result[2], result[3])
-    }
-
-    private fun doTrilinearFilteredPixelColor(
-        mPic: PixelsWithSizes,
-        m2Pic: PixelsWithSizes,
-        m: Int,
-        k: Float,
-        x: Float,
-        y: Float
-    ): Int {
-        val mX = (x / m).toInt()
-        val mY = (y / m).toInt()
-        val m2X = (x / m / 2).toInt()
-        val m2Y = (y / m / 2).toInt()
-
-        val mi = mY * mPic.w + mX
-        val m2i = m2Y * m2Pic.w + m2X
-        val result = IntArray(4)
-        for (c in 0 until 4) {
-            result[c] = ((getColorChannel(mPic.pixels[mi], c) * (2 * m - k) +
-                    getColorChannel(m2Pic.pixels[m2i], c) * (k - m)) / m).toInt()
-        }
-        return Color.argb(result[0], result[1], result[2], result[3])
-    }
-
-    private fun getColorChannel(color: Int, channel: Int) =
-        when (channel) {
-            0 -> Color.alpha(color)
-            1 -> Color.red(color)
-            2 -> Color.green(color)
-            3 -> Color.blue(color)
-            else -> 255
-        }
 
 }

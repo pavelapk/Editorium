@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import by.kirich1409.viewbindingdelegate.viewBinding
+import ru.imageella.editorium.PixelsWithSizes
 import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentRotateToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
@@ -23,12 +24,6 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
 
         fun newInstance() = RotateFragment()
     }
-
-    class PixelsWithSizes(
-        val pixels: IntArray,
-        val w: Int,
-        val h: Int
-    )
 
     private var rotation = 0
     private lateinit var image: ImageHandler
