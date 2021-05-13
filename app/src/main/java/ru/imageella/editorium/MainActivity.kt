@@ -92,7 +92,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         }
 
         R.id.actionDone -> {
-            getCurrentToolFragment()?.doAlgorithm()
+//            getCurrentToolFragment()?.doAlgorithm()
+            previewScale(1f)
+            previewRotate(0f)
             closeTool()
             true
         }
@@ -160,8 +162,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
                 1 -> replace(R.id.toolsFragment, RotateFragment.newInstance(), RotateFragment.TAG)
                 2 -> replace(R.id.toolsFragment, FiltersFragment.newInstance(), FiltersFragment.TAG)
                 3 -> replace(R.id.toolsFragment, ScaleFragment.newInstance(), ScaleFragment.TAG)
-                6 -> replace(R.id.toolsFragment, RetouchingFragment.newInstance(), RetouchingFragment.TAG)
-                7 -> replace(R.id.toolsFragment, UnsharpMaskingFragment.newInstance(), UnsharpMaskingFragment.TAG)
+                6 -> replace(
+                    R.id.toolsFragment,
+                    RetouchingFragment.newInstance(),
+                    RetouchingFragment.TAG
+                )
+                7 -> replace(
+                    R.id.toolsFragment,
+                    UnsharpMaskingFragment.newInstance(),
+                    UnsharpMaskingFragment.TAG
+                )
                 8 -> replace(R.id.toolsFragment, AffineFragment.newInstance(), AffineFragment.TAG)
                 9 -> replace(R.id.toolsFragment, CubeFragment.newInstance(), CubeFragment.TAG)
             }

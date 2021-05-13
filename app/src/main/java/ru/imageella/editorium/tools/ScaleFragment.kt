@@ -1,7 +1,6 @@
 package ru.imageella.editorium.tools
 
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
@@ -15,7 +14,6 @@ import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentScaleToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
-import kotlin.math.*
 
 class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
 
@@ -39,26 +37,22 @@ class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
         val seekBarChangeListener: SeekBar.OnSeekBarChangeListener = object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                setPreviewScale(progress.toFloat())
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                currentRatio = (seekBar.progress.toFloat() + 1) / 4
-                binding.ratioTV.text = currentRatio.toString()
-                setPreviewRotation(currentRatio)
-            }
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
         }
 
         binding.ratioSeekBar.setOnSeekBarChangeListener(seekBarChangeListener)
         binding.applyBtn.setOnClickListener {
-            setPreviewRotation(1f)
             doAlgorithm()
-            binding.ratioSeekBar.progress = 3
+            binding.ratioSeekBar.progress = 3 // 1.0x
         }
     }
 
     override fun doAlgorithm() {
-
+        if (currentRatio == 1f) return
         val width = image.getBitmap().width
         val height = image.getBitmap().height
         val nw = (width * currentRatio).toInt()
@@ -136,8 +130,10 @@ class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
     }
 
 
-    private fun setPreviewRotation(ratio: Float) {
-        image.previewScale(ratio)
+    private fun setPreviewScale(ratio: Float) {
+        currentRatio = (ratio + 1) / 4
+        image.previewScale(currentRatio)
+        binding.ratioTV.text = currentRatio.toString()
     }
 
 

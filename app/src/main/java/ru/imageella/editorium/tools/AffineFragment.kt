@@ -174,10 +174,6 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         return abs((a.x - c.x) * (b.y - c.y) - (b.x - c.x) * (a.y - c.y)) / 2
     }
 
-    private fun roundCoord(xy: Pair<Float, Float>): Pair<Int, Int> =
-        Pair(xy.first.roundToInt(), xy.second.roundToInt())
-
-
     private fun applyMatrix(xy: Pair<Int, Int>, matrix: AffineMatrix): Pair<Float, Float> {
         val x = xy.first
         val y = xy.second

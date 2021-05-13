@@ -164,19 +164,4 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
         }
     }
 
-    override fun doAlgorithm() {
-
-
-        val width = image.getBitmap().width
-        val height = image.getBitmap().height
-        val pixels = IntArray(width * height)
-        image.getBitmap().getPixels(pixels, 0, width, 0, 0, width, height)
-
-
-        /* image.setBitmap(
-             Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, image.getBitmap().config)
-         )*/
-    }
-
-
 }
