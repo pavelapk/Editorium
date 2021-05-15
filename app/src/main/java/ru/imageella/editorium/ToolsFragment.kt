@@ -31,6 +31,9 @@ class ToolsFragment : Fragment(R.layout.fragment_tools) {
         binding.scaleToolBtn.setOnClickListener {
             (activity as? ToolSelectListener)?.onToolClick(3)
         }
+        binding.faceToolBtn.setOnClickListener {
+            (activity as? ToolSelectListener)?.onToolClick(4)
+        }
         binding.retouchingToolBtn.setOnClickListener {
             (activity as? ToolSelectListener)?.onToolClick(6)
         }

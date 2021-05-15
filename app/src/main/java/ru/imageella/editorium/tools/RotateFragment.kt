@@ -26,12 +26,12 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
     }
 
     private var rotation = 0
-    private lateinit var image: ImageHandler
+    private var image: ImageHandler? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        image = activity as ImageHandler
+        image = activity as? ImageHandler
 
         binding.angleSeekBar.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
@@ -54,10 +54,11 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
     override fun doAlgorithm() {
         if (rotation % 360 == 0) return
 
-        val width = image.getBitmap().width
-        val height = image.getBitmap().height
+        val bmp = image?.getBitmap() ?: return
+        val width = bmp.width
+        val height = bmp.height
         val pixels = IntArray(width * height)
-        image.getBitmap().getPixels(pixels, 0, width, 0, 0, width, height)
+        bmp.getPixels(pixels, 0, width, 0, 0, width, height)
 
         var curPic = PixelsWithSizes(
             pixels,
@@ -69,8 +70,8 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
         binding.angleSeekBar.progress = 0
 
         curPic = rotatePic(curPic, angle)
-        image.setBitmap(
-            Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, image.getBitmap().config)
+        image?.setBitmap(
+            Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, bmp.config)
         )
     }
 
@@ -130,7 +131,7 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
 
 
     private fun setPreviewRotation(angle: Int) {
-        image.previewRotate(angle.toFloat())
+        image?.previewRotate(angle.toFloat())
         binding.angleTV.text = angle.toString()
         rotation = angle
     }

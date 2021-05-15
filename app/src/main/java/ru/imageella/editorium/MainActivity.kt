@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -13,11 +14,14 @@ import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import by.kirich1409.viewbindingdelegate.viewBinding
+import org.opencv.android.BaseLoaderCallback
+import org.opencv.android.LoaderCallbackInterface
+import org.opencv.android.OpenCVLoader
 import ru.imageella.editorium.databinding.ActivityMainBinding
 import ru.imageella.editorium.interfaces.Algorithm
-import ru.imageella.editorium.interfaces.Viewport
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.interfaces.ToolSelectListener
+import ru.imageella.editorium.interfaces.Viewport
 import ru.imageella.editorium.tools.*
 import java.io.InputStream
 
@@ -25,7 +29,6 @@ import java.io.InputStream
 class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListener, ImageHandler {
 
     private val binding by viewBinding(ActivityMainBinding::bind, R.id.rootLayout)
-
     private var lastBitmap: Bitmap? = null
     private lateinit var currentBitmap: Bitmap
     private lateinit var viewport: Viewport
@@ -75,6 +78,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         android.R.id.home -> {
             if (isToolActive) {
+                previewScale(1f)
                 previewRotate(0f)
                 lastBitmap?.let { setBitmap(it) }
                 closeTool()
@@ -95,6 +99,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 //            getCurrentToolFragment()?.doAlgorithm()
             previewScale(1f)
             previewRotate(0f)
+            clearOverlay()
+            refresh()
             closeTool()
             true
         }
@@ -162,6 +168,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
                 1 -> replace(R.id.toolsFragment, RotateFragment.newInstance(), RotateFragment.TAG)
                 2 -> replace(R.id.toolsFragment, FiltersFragment.newInstance(), FiltersFragment.TAG)
                 3 -> replace(R.id.toolsFragment, ScaleFragment.newInstance(), ScaleFragment.TAG)
+                4 -> replace(R.id.toolsFragment, FaceFragment.newInstance(), FaceFragment.TAG)
                 6 -> replace(
                     R.id.toolsFragment,
                     RetouchingFragment.newInstance(),
@@ -212,6 +219,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
     override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float, width: Float, color: Int) {
         viewport.drawLine(x1, y1, x2, y2, width, color)
+    }
+
+    override fun drawRect(l: Float, t: Float, r: Float, b: Float, width: Float, color: Int) {
+        viewport.drawRect(l, t, r, b, width, color)
     }
 
     override fun clearOverlay() {

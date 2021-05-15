@@ -75,6 +75,14 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
         canvas.drawLine(x1, y1, x2, y2, paint)
     }
 
+    override fun drawRect(l: Float, t: Float, r: Float, b: Float, width: Float, color: Int) {
+        paint.strokeWidth = width
+        paint.color = color
+        paint.style = Paint.Style.STROKE
+        canvas.drawRect(l, t, r, b, paint)
+    }
+
+
     override fun clearOverlay() {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
     }
