@@ -5,7 +5,11 @@ import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.imageella.editorium.PixelsWithSizes
 import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentRotateToolBinding
@@ -54,6 +58,13 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
     override fun doAlgorithm() {
         if (rotation % 360 == 0) return
 
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            rotate()
+        }
+    }
+
+    private suspend fun rotate() {
         val bmp = image?.getBitmap() ?: return
         val width = bmp.width
         val height = bmp.height
@@ -67,9 +78,9 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
         )
 
         val angle = Math.toRadians(rotation.toDouble())
-        binding.angleSeekBar.progress = 0
-
         curPic = rotatePic(curPic, angle)
+
+        binding.angleSeekBar.progress = 0
         image?.setBitmap(
             Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, bmp.config)
         )
@@ -106,28 +117,29 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
         return arrayOf(nw, nh, l, t)
     }
 
-    private fun rotatePic(pic: PixelsWithSizes, angle: Double): PixelsWithSizes {
-        val w = pic.w
-        val h = pic.h
-        val (nw, nh, l, t) = calcNewSizes(w, h, angle)
+    private suspend fun rotatePic(pic: PixelsWithSizes, angle: Double) =
+        withContext(Dispatchers.Default) {
+            val w = pic.w
+            val h = pic.h
+            val (nw, nh, l, t) = calcNewSizes(w, h, angle)
 
-        val newPic = IntArray(nw * nh)
-        val s = sin(-angle)
-        val c = cos(-angle)
-        for (nx in 0 until nw) {
-            for (ny in 0 until nh) {
-                val (x, y) = applyRotation(Pair(nx + l, ny + t), s, c)
+            val newPic = IntArray(nw * nh)
+            val s = sin(-angle)
+            val c = cos(-angle)
+            for (nx in 0 until nw) {
+                for (ny in 0 until nh) {
+                    val (x, y) = applyRotation(Pair(nx + l, ny + t), s, c)
 
-                if (x in 0 until w && y in 0 until h) {
-                    val i = y * w + x
-                    val ni = ny * nw + nx
-                    newPic[ni] = pic.pixels[i]
+                    if (x in 0 until w && y in 0 until h) {
+                        val i = y * w + x
+                        val ni = ny * nw + nx
+                        newPic[ni] = pic.pixels[i]
+                    }
                 }
             }
-        }
 
-        return PixelsWithSizes(newPic, nw, nh)
-    }
+            return@withContext PixelsWithSizes(newPic, nw, nh)
+        }
 
 
     private fun setPreviewRotation(angle: Int) {
