@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Path
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -14,9 +14,6 @@ import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import by.kirich1409.viewbindingdelegate.viewBinding
-import org.opencv.android.BaseLoaderCallback
-import org.opencv.android.LoaderCallbackInterface
-import org.opencv.android.OpenCVLoader
 import ru.imageella.editorium.databinding.ActivityMainBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
@@ -29,6 +26,7 @@ import java.io.InputStream
 class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListener, ImageHandler {
 
     private val binding by viewBinding(ActivityMainBinding::bind, R.id.rootLayout)
+
     private var lastBitmap: Bitmap? = null
     private lateinit var currentBitmap: Bitmap
     private lateinit var viewport: Viewport
@@ -213,6 +211,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         getCurrentToolFragment()?.onImageTouchMove(x, y, isStart)
     }
 
+    override fun onImageRotationGesture(angle: Float) {
+        getCurrentToolFragment()?.onImageRotationGesture(angle)
+    }
+
     override fun drawPoint(x: Float, y: Float, width: Float, color: Int) {
         viewport.drawPoint(x, y, width, color)
     }
@@ -223,6 +225,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
     override fun drawRect(l: Float, t: Float, r: Float, b: Float, width: Float, color: Int) {
         viewport.drawRect(l, t, r, b, width, color)
+    }
+
+    override fun drawPath(path: Path, isFill: Boolean, width: Float, color: Int) {
+        viewport.drawPath(path, isFill, width, color)
     }
 
     override fun clearOverlay() {

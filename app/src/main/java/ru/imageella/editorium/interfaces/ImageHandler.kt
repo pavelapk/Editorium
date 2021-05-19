@@ -7,4 +7,5 @@ interface ImageHandler : Viewport {
     fun onImageClick(x: Float, y: Float)
     fun onImageTouchMove(x: Float, y: Float, isStart: Boolean)
     fun getLastBitmap(): Bitmap
+    fun onImageRotationGesture(angle: Float)
 }

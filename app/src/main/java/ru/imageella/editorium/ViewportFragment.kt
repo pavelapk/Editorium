@@ -3,6 +3,7 @@ package ru.imageella.editorium
 import android.annotation.SuppressLint
 import android.graphics.*
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.graphics.scale
@@ -11,6 +12,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.imageella.editorium.databinding.FragmentViewportBinding
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.interfaces.Viewport
+import ru.imageella.editorium.utils.RotationGestureDetector
 import kotlin.math.min
 
 class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
@@ -21,7 +23,6 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
         val TAG: String = ViewportFragment::class.java.simpleName
 
         fun newInstance() = ViewportFragment()
-
     }
 
     private val canvas = Canvas()
@@ -38,8 +39,18 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
             setBitmap((activity as ImageHandler).getBitmap())
         }
 
+        val rotationDetector = RotationGestureDetector(binding.overlayImage,
+            object : RotationGestureDetector.OnRotationGestureListener {
+                override fun onRotation(angle: Float) {
+                    (activity as ImageHandler).onImageRotationGesture(angle)
+                }
+
+            })
+
         binding.overlayImage.setOnTouchListener { v, event ->
 //            Log.d("DAROVA", "${event.action} - ${event.x}, ${event.y}")
+            val lastRotationActive = rotationDetector.isRotationActive
+            rotationDetector.onTouchEvent(event)
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     (activity as ImageHandler).onImageClick(event.x, event.y)
@@ -50,13 +61,13 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
                     )
                     v.performClick()
                 }
-                MotionEvent.ACTION_MOVE -> {
-                    (activity as ImageHandler).onImageTouchMove(
-                        event.x / v.width,
-                        event.y / v.height,
-                        false
-                    )
-                }
+                MotionEvent.ACTION_MOVE -> if (!rotationDetector.isRotationActive) {
+                        (activity as ImageHandler).onImageTouchMove(
+                            event.x / v.width,
+                            event.y / v.height,
+                            lastRotationActive
+                        )
+                    }
             }
             true
         }
@@ -83,6 +94,13 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
     }
 
 
+    override fun drawPath(path: Path, isFill: Boolean, width: Float, color: Int) {
+        paint.strokeWidth = width
+        paint.color = color
+        paint.style = if (isFill) Paint.Style.FILL else Paint.Style.STROKE
+        canvas.drawPath(path, paint)
+    }
+
     override fun clearOverlay() {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
     }
@@ -90,7 +108,6 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
     override fun refresh() {
         binding.overlayImage.invalidate()
     }
-
 
     override fun setBitmap(bitmap: Bitmap) {
 
