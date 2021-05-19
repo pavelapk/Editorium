@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Path
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
@@ -188,12 +189,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         getCurrentToolFragment()?.onImageTouchMove(x, y, isStart)
     }
 
+    override fun onImageRotationGesture(angle: Float) {
+        getCurrentToolFragment()?.onImageRotationGesture(angle)
+    }
+
     override fun drawPoint(x: Float, y: Float, width: Float, color: Int) {
         viewport.drawPoint(x, y, width, color)
     }
 
     override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float, width: Float, color: Int) {
         viewport.drawLine(x1, y1, x2, y2, width, color)
+    }
+
+    override fun drawPath(path: Path, isFill: Boolean, width: Float, color: Int) {
+        viewport.drawPath(path, isFill, width, color)
     }
 
     override fun clearOverlay() {

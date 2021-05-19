@@ -1,6 +1,7 @@
 package ru.imageella.editorium.tools
 
 import android.graphics.Color
+import android.graphics.Path
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
@@ -10,6 +11,10 @@ import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentCubeToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
+import ru.imageella.editorium.utils.Cube
+import ru.imageella.editorium.utils.LinAlg.Companion.applyMatrix
+import ru.imageella.editorium.utils.LinAlg.Companion.prodMatrix
+import ru.imageella.editorium.utils.Vector
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
@@ -23,43 +28,16 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
         val TAG: String = CubeFragment::class.java.simpleName
 
         fun newInstance() = CubeFragment()
+
+
+        private const val cameraDistance = 4f
+        private const val rotateSpeed = 2f
     }
 
     private lateinit var image: ImageHandler
-    private var angleX = 0f
-    private var angleY = 0f
-    private var angleZ = 0f
 
-    private class Point(var x: Float, var y: Float)
-    private class Vertex(var x: Float, var y: Float, var z: Float)
+    class Point(var x: Float, var y: Float)
 
-    private class Cube {
-        companion object {
-            val points = arrayOf(
-                Vertex(-1f, -1f, -1f),
-                Vertex(1f, -1f, -1f),
-                Vertex(1f, 1f, -1f),
-                Vertex(-1f, 1f, -1f),
-                Vertex(-1f, -1f, 1f),
-                Vertex(1f, -1f, 1f),
-                Vertex(1f, 1f, 1f),
-                Vertex(-1f, 1f, 1f),
-                Vertex(-0.3f, -0.6f, 1f),
-                Vertex(0f, 0.6f, 1f),
-                Vertex(0.3f, -0.6f, 1f),
-            )
-
-            fun getLines(): MutableList<Pair<Int, Int>> {
-                val lines = mutableListOf(8 to 9, 9 to 10)
-                for (i in 0..3) {
-                    lines.add(i to (i + 1) % 4)
-                    lines.add(i + 4 to (i + 1) % 4 + 4)
-                    lines.add(i to i + 4)
-                }
-                return lines
-            }
-        }
-    }
 
     private fun toRad(deg: Int): Float = (deg * PI / 180).toFloat()
 
@@ -68,98 +46,110 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
 
         image = activity as ImageHandler
 
-        drawCube(Cube.points)
+        drawCube()
         image.refresh()
 
-        binding.angleZSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                angleZ = toRad(progress)
-                drawCube(Cube.points)
-                image.refresh()
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-    }
-
-    private fun applyMatrix(matrix: Array<Array<Float>>, vertex: Vertex): Vertex {
-        return Vertex(
-            matrix[0][0] * vertex.x + matrix[0][1] * vertex.y + matrix[0][2] * vertex.z,
-            matrix[1][0] * vertex.x + matrix[1][1] * vertex.y + matrix[1][2] * vertex.z,
-            matrix[2][0] * vertex.x + matrix[2][1] * vertex.y + matrix[2][2] * vertex.z
-        )
     }
 
 
-    private fun drawCube(vertices: Array<Vertex>) {
-        image.clearOverlay()
-        val overlaySize = image.getOverlaySize()
-        val centerX = overlaySize.first * 0.5f
-        val centerY = overlaySize.second * 0.5f
-        val scale = min(overlaySize.first, overlaySize.second) * 1f
-        val rotationX = arrayOf(
+    private var rotationMat = arrayOf(
+        arrayOf(1f, 0f, 0f),
+        arrayOf(0f, 1f, 0f),
+        arrayOf(0f, 0f, 1f),
+    )
+
+    private fun updateRotations(x: Float, y: Float, z: Float) {
+        val deltaX = arrayOf(
             arrayOf(1f, 0f, 0f),
-            arrayOf(0f, cos(angleX), -sin(angleX)),
-            arrayOf(0f, sin(angleX), cos(angleX)),
+            arrayOf(0f, cos(x), -sin(x)),
+            arrayOf(0f, sin(x), cos(x)),
         )
-        val rotationY = arrayOf(
-            arrayOf(cos(angleY), 0f, sin(angleY)),
+        val deltaY = arrayOf(
+            arrayOf(cos(y), 0f, sin(y)),
             arrayOf(0f, 1f, 0f),
-            arrayOf(-sin(angleY), 0f, cos(angleY)),
+            arrayOf(-sin(y), 0f, cos(y)),
         )
-        val rotationZ = arrayOf(
-            arrayOf(cos(angleZ), -sin(angleZ), 0f),
-            arrayOf(sin(angleZ), cos(angleZ), 0f),
+        val deltaZ = arrayOf(
+            arrayOf(cos(z), -sin(z), 0f),
+            arrayOf(sin(z), cos(z), 0f),
             arrayOf(0f, 0f, 1f),
         )
-
-        val points = vertices.map {
-            var projected = applyMatrix(rotationX, it)
-            projected = applyMatrix(rotationY, projected)
-            projected = applyMatrix(rotationZ, projected)
-
-            val z = 1 / (4 - projected.z)
-            val projection = arrayOf(
-                arrayOf(z, 0f, 0f),
-                arrayOf(0f, z, 0f),
-                arrayOf(0f, 0f, 0f),
-            )
-            projected = applyMatrix(projection, projected)
-            Point(
-                projected.x * scale + centerX,
-                projected.y * scale + centerY,
-            )
-        }
-        for (line in Cube.getLines()) {
-            image.drawLine(
-                points[line.first].x,
-                points[line.first].y,
-                points[line.second].x,
-                points[line.second].y,
-                15f,
-                Color.RED
-            )
-        }
+        rotationMat = prodMatrix(deltaX, rotationMat)
+        rotationMat = prodMatrix(deltaY, rotationMat)
+        rotationMat = prodMatrix(deltaZ, rotationMat)
     }
 
 
-    private var startX = 0f
-    private var startY = 0f
-    private var startAngleX = 0f
-    private var startAngleY = 0f
+    private fun perspectiveProjection(v: Vector, center: Point, scale: Float): Point {
+        val z = 1 / (cameraDistance - v.z)
+        val projection = arrayOf(
+            arrayOf(z, 0f, 0f),
+            arrayOf(0f, z, 0f),
+            arrayOf(0f, 0f, 1f),
+        )
+        val projected = applyMatrix(projection, v)
+        return Point(
+            projected.x * scale + center.x,
+            projected.y * scale + center.y,
+        )
+    }
+
+    private fun drawCube() {
+        image.clearOverlay()
+        val overlaySize = image.getOverlaySize()
+        val center = Point(overlaySize.first * 0.5f, overlaySize.second * 0.5f)
+        val scale = min(overlaySize.first, overlaySize.second) * 1f
+
+        for (face in Cube.faces) {
+            val rotatedFace = face.getRotated(rotationMat)
+            val dot = (Vector(0f, 0f, cameraDistance) - rotatedFace.center) *
+                    applyMatrix(rotationMat, face.normal)
+
+            if (dot > 0) {
+                val path = Path()
+                var points = rotatedFace.vertices.map { perspectiveProjection(it, center, scale) }
+                path.moveTo(points[0].x, points[0].y)
+                for (i in 1 until points.size) {
+                    path.lineTo(points[i].x, points[i].y)
+                }
+                image.drawPath(path, true, 5f, face.color)
+
+                path.reset()
+                points =
+                    rotatedFace.picVertices.map { perspectiveProjection(it, center, scale) }
+                path.moveTo(points[0].x, points[0].y)
+                for (i in 1 until points.size) {
+                    path.lineTo(points[i].x, points[i].y)
+                }
+                image.drawPath(path, false, 10f, Color.BLACK)
+
+            }
+        }
+
+//        for (vertex in Cube.vertices) {
+//            val projected = perspectiveProjection(applyMatrix(rotationMat, vertex), center, scale)
+//            image.drawPoint(projected.x, projected.y, 20f, Color.DKGRAY)
+//        }
+    }
+
+    private var lastX = 0f
+    private var lastY = 0f
 
     override fun onImageTouchMove(x: Float, y: Float, isStart: Boolean) {
-        if (isStart) {
-            startX = x
-            startY = y
-            startAngleX = angleX
-            startAngleY = angleY
-        } else {
-            angleX = startAngleX + (y - startY) * -2
-            angleY = startAngleY + (x - startX) * 2
+        if (!isStart) {
+            val deltaX = (y - lastY) * -rotateSpeed
+            val deltaY = (x - lastX) * rotateSpeed
+            updateRotations(deltaX, deltaY, 0f)
         }
-        drawCube(Cube.points)
+        lastX = x
+        lastY = y
+        drawCube()
+        image.refresh()
+    }
+
+    override fun onImageRotationGesture(angle: Float) {
+        updateRotations(0f, 0f, angle)
+        drawCube()
         image.refresh()
     }
 
