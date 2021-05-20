@@ -6,7 +6,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.imageella.editorium.Filtering
 import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentAffineToolBinding
@@ -27,7 +31,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         fun newInstance() = AffineFragment()
     }
 
-    private lateinit var image: ImageHandler
+    private var image: ImageHandler? = null
 
     enum class State {
         START, END, NONE
@@ -54,7 +58,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        image = activity as ImageHandler
+        image = activity as? ImageHandler
 
         binding.startPointsToggle.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -73,7 +77,11 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         }
 
         binding.transformBtn.setOnClickListener {
-            doAlgorithm()
+            viewLifecycleOwner.lifecycleScope.launch {
+                image?.progressIndicator(binding.root, true)
+                doAlgorithm()
+                image?.progressIndicator(binding.root, false)
+            }
         }
 
         val matrix = AffineMatrix.calcMatrix(
@@ -92,7 +100,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
 
     private fun switchState(newState: State) {
         state = newState
-        image.clearOverlay()
+        image?.clearOverlay()
         when (state) {
             State.START -> {
                 binding.endPointsToggle.isEnabled = false
@@ -108,19 +116,18 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
             }
         }
         binding.transformBtn.isEnabled = state == State.NONE
-        image.refresh()
+        image?.refresh()
     }
 
     private fun drawPoints(points: Array<Point>) {
-        image.clearOverlay()
+        image?.clearOverlay()
         for (point in points) {
             if (point.x >= 0 && point.y >= 0)
-                image.drawPoint(point.x, point.y, 25f, point.color)
+                image?.drawPoint(point.x, point.y, 25f, point.color)
         }
     }
 
     override fun onImageClick(x: Float, y: Float) {
-        //image.drawPoint(x, y, 20f, Color.GREEN)
         when (state) {
             State.START -> {
                 startPoints[curStart].x = x
@@ -136,8 +143,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
             }
             else -> return
         }
-        image.refresh()
-
+        image?.refresh()
     }
 
     private class AffineMatrix(var m0: Float, var m1: Float, var m2: Float, var m3: Float) {
@@ -156,17 +162,18 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
     }
 
 
-    private fun doAlgorithm() {
-        val width = image.getBitmap().width
-        val height = image.getBitmap().height
+    private suspend fun doAlgorithm() {
+        val bmp = image?.getBitmap() ?: return
+        val width = bmp.width
+        val height = bmp.height
         val pixels = IntArray(width * height)
-        image.getBitmap().getPixels(pixels, 0, width, 0, 0, width, height)
+        bmp.getPixels(pixels, 0, width, 0, 0, width, height)
 
         var curPic = PixelsWithSizes(pixels, width, height)
 
         curPic = transformPic(curPic)
-        image.setBitmap(
-            Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, image.getBitmap().config)
+        image?.setBitmap(
+            Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, bmp.config)
         )
     }
 
@@ -200,77 +207,66 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         return arrayOf(nw, nh, l, t)
     }
 
-    private fun transformPic(pic: PixelsWithSizes): PixelsWithSizes {
-        val w = pic.w
-        val h = pic.h
-        val (nw, nh, l, t) = calcNewSizes(w, h)
-        val matrix = AffineMatrix.calcMatrix(endPoints, startPoints)
-//        Log.d("DAROVA", "2 ${matrix.m0}, ${matrix.m1}, ${matrix.m2}, ${matrix.m3}")
-        val oldArea = triangleArea(startPoints[0], startPoints[1], startPoints[2])
-        val newArea = triangleArea(endPoints[0], endPoints[1], endPoints[2])
-        Log.d("DAROVA", "transformPic: ${newArea / oldArea}")
-        val newPic = IntArray(nw * nh)
-//        for (nx in 0 until nw) {
-//            for (ny in 0 until nh) {
-//
-//
-//                if (x in 0 until w && y in 0 until h) {
-//                    val i = y * w + x
-//                    val ni = ny * nw + nx
-//                    newPic[ni] = pic.pixels[i]
-//                }
-//            }
-//        }
+    private suspend fun transformPic(pic: PixelsWithSizes): PixelsWithSizes =
+        withContext(Dispatchers.Default) {
+            val w = pic.w
+            val h = pic.h
+            val (nw, nh, l, t) = calcNewSizes(w, h)
+            val matrix = AffineMatrix.calcMatrix(endPoints, startPoints)
+            val oldArea = triangleArea(startPoints[0], startPoints[1], startPoints[2])
+            val newArea = triangleArea(endPoints[0], endPoints[1], endPoints[2])
 
-        if (newArea / oldArea >= 1f) {
-            for (nx in 0 until nw) {
-                for (ny in 0 until nh) {
-                    val ni = ny * nw + nx
-                    val (x, y) = applyMatrix(Pair(nx + l, ny + t), matrix)
-                    if (0 <= x && x < w && 0 <= y && y < h) {
-                        newPic[ni] = Filtering.doBilinearFilteredPixelColor(
-                            pic,
-                            x,
-                            y
-                        )
+            val newPic = IntArray(nw * nh)
+
+            if (newArea / oldArea >= 1f) {
+                for (nx in 0 until nw) {
+                    for (ny in 0 until nh) {
+                        val ni = ny * nw + nx
+                        val (x, y) = applyMatrix(Pair(nx + l, ny + t), matrix)
+                        if (0 <= x && x < w && 0 <= y && y < h) {
+                            newPic[ni] = Filtering.doBilinearFilteredPixelColor(
+                                pic,
+                                x,
+                                y
+                            )
+                        }
+                    }
+                }
+            } else {
+                val k = oldArea / newArea
+                var m = 1
+                while (m <= k) {
+                    m *= 2
+                }
+                m /= 2
+
+                var mPic = pic
+                var curM = 1
+                while (curM < m) {
+                    mPic = Filtering.halfSize(mPic)
+                    curM *= 2
+                }
+                val m2Pic = Filtering.halfSize(mPic)
+
+                for (nx in 0 until nw) {
+                    for (ny in 0 until nh) {
+                        val ni = ny * nw + nx
+                        val (x, y) = applyMatrix(Pair(nx + l, ny + t), matrix)
+                        if (0 <= x && x < w && 0 <= y && y < h) {
+                            newPic[ni] = Filtering.doTrilinearFilteredPixelColor(
+                                mPic,
+                                m2Pic,
+                                m,
+                                k,
+                                x,
+                                y
+                            )
+                        }
                     }
                 }
             }
-        } else {
-            val k = oldArea / newArea
-            var m = 1
-            while (m <= k) {
-                m *= 2
-            }
-            m /= 2
 
-            var mPic = pic
-            var curM = 1
-            while (curM < m) {
-                mPic = Filtering.halfSize(mPic)
-                curM *= 2
-            }
-            val m2Pic = Filtering.halfSize(mPic)
-
-            for (nx in 0 until nw) {
-                for (ny in 0 until nh) {
-                    val ni = ny * nw + nx
-                    val (x, y) = applyMatrix(Pair(nx + l, ny + t), matrix)
-                    if (0 <= x && x < w && 0 <= y && y < h) {
-                        newPic[ni] = Filtering.doTrilinearFilteredPixelColor(
-                            mPic,
-                            m2Pic,
-                            m,
-                            k,
-                            x,
-                            y
-                        )
-                    }
-                }
-            }
+            PixelsWithSizes(newPic, nw, nh)
         }
-
-        return PixelsWithSizes(newPic, nw, nh)
-    }
 
 }

@@ -22,20 +22,19 @@ class RotationGestureDetector(v: View, private val mListener: OnRotationGestureL
 
     fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
-            MotionEvent.ACTION_OUTSIDE -> Log.d("DAROVA", "ACTION_OUTSIDE")
             MotionEvent.ACTION_DOWN -> {
-                Log.v("DAROVA", "ACTION_DOWN")
+//                Log.v("DAROVA", "ACTION_DOWN")
                 mPtrID1 = event.getPointerId(event.actionIndex)
             }
             MotionEvent.ACTION_POINTER_DOWN -> {
-                Log.v("DAROVA", "ACTION_POINTER_DOWN")
+//                Log.v("DAROVA", "ACTION_POINTER_DOWN")
                 mPtrID2 = event.getPointerId(event.actionIndex)
                 getRawPoint(event, mPtrID1, mSPoint)
                 getRawPoint(event, mPtrID2, mFPoint)
                 lastAngle = 0f
             }
             MotionEvent.ACTION_MOVE -> {
-                Log.v("DAROVA", "ACTION_MOVE: $mPtrID1, $mPtrID2")
+//                Log.v("DAROVA", "ACTION_MOVE: $mPtrID1, $mPtrID2")
                 if (mPtrID1 != INVALID_POINTER_ID && mPtrID2 != INVALID_POINTER_ID) {
                     isRotationActive = true
                     val nfPoint = PointF()

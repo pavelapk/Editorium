@@ -1,12 +1,17 @@
 package ru.imageella.editorium.tools
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.LoaderCallbackInterface
 import org.opencv.android.OpenCVLoader
@@ -34,7 +39,7 @@ class FaceFragment : Fragment(R.layout.fragment_face_tool), Algorithm {
         fun newInstance() = FaceFragment()
     }
 
-    private lateinit var image: ImageHandler
+    private var image: ImageHandler? = null
 
     private val mLoaderCallback = object : BaseLoaderCallback(context) {
         override fun onManagerConnected(status: Int) {
@@ -47,14 +52,6 @@ class FaceFragment : Fragment(R.layout.fragment_face_tool), Algorithm {
                 }
             }
         }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        image = activity as ImageHandler
-
-        binding.findBtn.setOnClickListener { doAlgorithm() }
     }
 
     private fun loadHaarCascadeFile(): File {
@@ -85,8 +82,42 @@ class FaceFragment : Fragment(R.layout.fragment_face_tool), Algorithm {
         }
     }
 
-    private fun doAlgorithm() {
-        val bmp = image.getBitmap()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        image = activity as? ImageHandler
+
+        binding.findBtn.setOnClickListener {
+            viewLifecycleOwner.lifecycleScope.launch {
+                image?.progressIndicator(binding.root, true)
+                doAlgorithm()
+                image?.progressIndicator(binding.root, false)
+            }
+        }
+    }
+
+    private suspend fun doAlgorithm() {
+        val bmp = image?.getBitmap() ?: return
+
+        val rects = detectFace(bmp)
+//        for (rect in rects) {
+//            Imgproc.rectangle(mat, rect, Scalar(0.0, 0.0, 255.0),)
+//        }
+        val (w, h) = image?.getOverlaySize() ?: 0 to 0
+        for (rect in rects) {
+            val l = rect.tl().x / bmp.width * w
+            val t = rect.tl().y / bmp.height * h
+            val r = rect.br().x / bmp.width * w
+            val b = rect.br().y / bmp.height * h
+            image?.drawRect(l.toFloat(), t.toFloat(), r.toFloat(), b.toFloat(), 10f, Color.RED)
+        }
+        image?.refresh()
+//        Utils.matToBitmap(mat, bmp)
+//        image.setBitmap(bmp)
+    }
+
+
+    private suspend fun detectFace(bmp: Bitmap) = withContext(Dispatchers.Default) {
         val mat = Mat(bmp.width, bmp.height, CvType.CV_8UC4)
         Utils.bitmapToMat(bmp, mat)
 
@@ -101,22 +132,6 @@ class FaceFragment : Fragment(R.layout.fragment_face_tool), Algorithm {
             0,
             Size(bmp.width / 20.0, bmp.height / 20.0)
         )
-        val rects = matOfRect.toList()
-//
-//        for (rect in rects) {
-//            Imgproc.rectangle(mat, rect, Scalar(0.0, 0.0, 255.0),)
-//        }
-
-        val (w, h) = image.getOverlaySize()
-        for (rect in rects) {
-            val l = rect.tl().x / mat.width() * w
-            val t = rect.tl().y / mat.height() * h
-            val r = rect.br().x / mat.width() * w
-            val b = rect.br().y / mat.height() * h
-            image.drawRect(l.toFloat(), t.toFloat(), r.toFloat(), b.toFloat(), 10f, Color.RED)
-        }
-        image.refresh()
-//        Utils.matToBitmap(mat, bmp)
-//        image.setBitmap(bmp)
+        matOfRect.toList()
     }
 }

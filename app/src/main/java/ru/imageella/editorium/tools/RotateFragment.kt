@@ -3,7 +3,6 @@ package ru.imageella.editorium.tools
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -138,7 +137,7 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
                 }
             }
 
-            return@withContext PixelsWithSizes(newPic, nw, nh)
+            PixelsWithSizes(newPic, nw, nh)
         }
 
 

@@ -78,8 +78,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         android.R.id.home -> {
             if (isToolActive) {
-                previewScale(1f)
-                previewRotate(0f)
                 lastBitmap?.let { setBitmap(it) }
                 closeTool()
             } else {
@@ -97,10 +95,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
         R.id.actionDone -> {
 //            getCurrentToolFragment()?.doAlgorithm()
-            previewScale(1f)
-            previewRotate(0f)
-            clearOverlay()
-            refresh()
             closeTool()
             true
         }
@@ -140,6 +134,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
 
     private fun closeTool() {
+        previewScale(1f)
+        previewRotate(0f)
+        progressIndicator(null, false)
+        clearOverlay()
+        refresh()
         isToolActive = false
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_image_24)
         toolbarMenu?.apply {
@@ -212,10 +211,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         }
     }
 
-    override fun progressIndicator(toolLayout: ViewGroup, isEnabled: Boolean) {
+    override fun progressIndicator(toolLayout: ViewGroup?, isEnabled: Boolean) {
         binding.progressIndicator.visibility = if (isEnabled) View.VISIBLE else View.INVISIBLE
         binding.progressBar.visibility = if (isEnabled) View.VISIBLE else View.INVISIBLE
-        disableAllViews(toolLayout, !isEnabled)
+        toolLayout?.let { disableAllViews(it, !isEnabled) }
     }
 
     override fun onImageClick(x: Float, y: Float) {
