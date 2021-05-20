@@ -1,6 +1,7 @@
 package ru.imageella.editorium
 
 import android.graphics.Color
+import ru.imageella.editorium.utils.PixelsWithSizes
 import kotlin.math.min
 
 class Filtering {

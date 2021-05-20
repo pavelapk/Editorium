@@ -1,4 +1,4 @@
-package ru.imageella.editorium
+package ru.imageella.editorium.utils
 
 class PixelsWithSizes(
     val pixels: IntArray,

@@ -1,11 +1,10 @@
 package ru.imageella.editorium.interfaces
 
 import android.graphics.Bitmap
+import android.view.ViewGroup
 
-interface ImageHandler : Viewport {
+interface ImageHandler : Viewport, Algorithm {
     fun getBitmap(): Bitmap
-    fun onImageClick(x: Float, y: Float)
-    fun onImageTouchMove(x: Float, y: Float, isStart: Boolean)
     fun getLastBitmap(): Bitmap
-    fun onImageRotationGesture(angle: Float)
+    fun progressIndicator(toolLayout: ViewGroup, isEnabled: Boolean)
 }

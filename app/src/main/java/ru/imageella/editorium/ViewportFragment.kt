@@ -62,12 +62,12 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
                     v.performClick()
                 }
                 MotionEvent.ACTION_MOVE -> if (!rotationDetector.isRotationActive) {
-                        (activity as ImageHandler).onImageTouchMove(
-                            event.x / v.width,
-                            event.y / v.height,
-                            lastRotationActive
-                        )
-                    }
+                    (activity as ImageHandler).onImageTouchMove(
+                        event.x / v.width,
+                        event.y / v.height,
+                        lastRotationActive
+                    )
+                }
             }
             true
         }
@@ -155,4 +155,5 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
         binding.previewWarningTV.visibility =
             if (ratio != 1f) View.VISIBLE else View.INVISIBLE
     }
+
 }

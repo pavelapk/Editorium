@@ -85,7 +85,7 @@ class FaceFragment : Fragment(R.layout.fragment_face_tool), Algorithm {
         }
     }
 
-    override fun doAlgorithm() {
+    private fun doAlgorithm() {
         val bmp = image.getBitmap()
         val mat = Mat(bmp.width, bmp.height, CvType.CV_8UC4)
         Utils.bitmapToMat(bmp, mat)

@@ -8,11 +8,11 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.imageella.editorium.Filtering
-import ru.imageella.editorium.PixelsWithSizes
 import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentAffineToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
+import ru.imageella.editorium.utils.PixelsWithSizes
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -156,7 +156,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
     }
 
 
-    override fun doAlgorithm() {
+    private fun doAlgorithm() {
         val width = image.getBitmap().width
         val height = image.getBitmap().height
         val pixels = IntArray(width * height)

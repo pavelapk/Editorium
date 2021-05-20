@@ -3,6 +3,7 @@ package ru.imageella.editorium.tools
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -10,14 +11,15 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.imageella.editorium.PixelsWithSizes
 import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentRotateToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
+import ru.imageella.editorium.utils.PixelsWithSizes
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
+
 
 class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
 
@@ -52,15 +54,13 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
                 (rotation + 359) / 90 * 90 % 360 // уменьшить угол до ближайшего кратного 90
         }
 
-        binding.applyBtn.setOnClickListener { doAlgorithm() }
-    }
-
-    override fun doAlgorithm() {
-        if (rotation % 360 == 0) return
-
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            rotate()
+        binding.applyBtn.setOnClickListener {
+            if (rotation % 360 == 0) return@setOnClickListener
+            viewLifecycleOwner.lifecycleScope.launch {
+                image?.progressIndicator(binding.root, true)
+                rotate()
+                image?.progressIndicator(binding.root, false)
+            }
         }
     }
 

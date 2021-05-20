@@ -154,10 +154,6 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
     }
 
 
-    override fun doAlgorithm() {
-
-    }
-
 /*
     private fun roundCoord(xy: Pair<Float, Float>): Pair<Int, Int> =
         Pair(xy.first.roundToInt(), xy.second.roundToInt())

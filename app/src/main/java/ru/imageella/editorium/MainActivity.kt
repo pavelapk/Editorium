@@ -9,6 +9,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.appcompat.app.AppCompatActivity
@@ -202,6 +204,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
     override fun getOverlaySize() = viewport.getOverlaySize()
 
     override fun getLastBitmap() = lastBitmap ?: currentBitmap
+
+    private fun disableAllViews(layout: ViewGroup, isEnabled: Boolean) {
+        layout.isEnabled = isEnabled
+        for (i in 0 until layout.childCount) {
+            layout.getChildAt(i).isEnabled = isEnabled
+        }
+    }
+
+    override fun progressIndicator(toolLayout: ViewGroup, isEnabled: Boolean) {
+        binding.progressIndicator.visibility = if (isEnabled) View.VISIBLE else View.INVISIBLE
+        binding.progressBar.visibility = if (isEnabled) View.VISIBLE else View.INVISIBLE
+        disableAllViews(toolLayout, !isEnabled)
+    }
 
     override fun onImageClick(x: Float, y: Float) {
         getCurrentToolFragment()?.onImageClick(x, y)
