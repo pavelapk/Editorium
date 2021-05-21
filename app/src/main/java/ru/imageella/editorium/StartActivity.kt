@@ -1,5 +1,6 @@
 package ru.imageella.editorium
 
+import android.Manifest
 import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
@@ -8,8 +9,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import androidx.activity.result.contract.ActivityResultContracts.GetContent
-import androidx.activity.result.contract.ActivityResultContracts.TakePicture
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.appcompat.app.AppCompatActivity
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.imageella.editorium.databinding.ActivityStartBinding
@@ -29,6 +30,28 @@ class StartActivity : AppCompatActivity(R.layout.activity_start) {
 
     private var photoURI: Uri? = null
 
+    private val writePermission = registerForActivityResult(RequestPermission()) { granted ->
+        when {
+            granted -> {
+                takePicturePrepare()
+            }
+            !shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
+                Toast.makeText(
+                    this,
+                    getString(R.string.writePermissionRationaleBlocked),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            else -> {
+                Toast.makeText(
+                    this,
+                    getString(R.string.writePermissionRationale),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -37,30 +60,44 @@ class StartActivity : AppCompatActivity(R.layout.activity_start) {
         }
 
         binding.photoBtn.setOnClickListener {
-            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            val name = "JPEG_${timeStamp}"
-            val dir = Environment.DIRECTORY_DCIM + File.separator + "Editorium"
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val resolver = contentResolver
-                val contentValues = ContentValues().apply {
-                    put(MediaStore.MediaColumns.DISPLAY_NAME, "$name.jpg")
-                    put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
-                    put(MediaStore.MediaColumns.RELATIVE_PATH, dir)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    Toast.makeText(
+                        this,
+                        getString(R.string.writePermissionRationale),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-                photoURI =
-                    resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+                writePermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             } else {
-                try {
-                    val storageDir = Environment.getExternalStoragePublicDirectory(dir)
-                    photoURI = Uri.fromFile(File(storageDir, "$name.jpg"))
-                } catch (ex: IOException) {
-                    Log.e("DAROVA", "create file", ex)
-                }
+                takePicturePrepare()
             }
-            photoURI?.let { takePicture.launch(it) }
-
         }
 
+    }
+
+    private fun takePicturePrepare() {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val name = "JPEG_${timeStamp}"
+        val dir = Environment.DIRECTORY_DCIM + File.separator + "Editorium"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val resolver = contentResolver
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, "$name.jpg")
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, dir)
+            }
+            photoURI =
+                resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        } else {
+            try {
+                val storageDir = Environment.getExternalStoragePublicDirectory(dir)
+                photoURI = Uri.fromFile(File(storageDir, "$name.jpg"))
+            } catch (ex: IOException) {
+                Log.e("DAROVA", "create file", ex)
+            }
+        }
+        photoURI?.let { takePicture.launch(it) }
     }
 
     private val getImageFromGallery = registerForActivityResult(GetContent()) { uri: Uri? ->
