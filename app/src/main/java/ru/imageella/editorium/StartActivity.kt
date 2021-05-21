@@ -127,6 +127,11 @@ class StartActivity : AppCompatActivity(R.layout.activity_start) {
 
 
     private fun openProcessImage(uri: Uri) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            val mediaScanIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+            mediaScanIntent.data = uri
+            sendBroadcast(mediaScanIntent)
+        }
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra(EXTRA_IMAGE_URI, uri)
         }
