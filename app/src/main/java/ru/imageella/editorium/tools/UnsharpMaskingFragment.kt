@@ -34,7 +34,7 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 binding.textViewForSigma.text = progress.toString()
-               sigma = progress.toDouble()
+                sigma = progress.toDouble()
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -44,8 +44,9 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 binding.textViewForCoef.text = progress.toString()
-                coef = progress/10.0
+                coef = progress / 10.0
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
@@ -57,75 +58,75 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
             val pixelsNew = IntArray(w * h)
             image.getLastBitmap().getPixels(pixels, 0, w, 0, 0, w, h)
 
-            val sig2 = 2*sigma*sigma
-            val sizeWin = (3*sigma).toInt()
-            val window = DoubleArray(2*sizeWin + 1)
+            val sig2 = 2 * sigma * sigma
+            val sizeWin = (3 * sigma).toInt()
+            val window = DoubleArray(2 * sizeWin + 1)
             var fl = 1
             window[sizeWin] = 1.0
-            for(i in sizeWin - 1 downTo  0){
+            for (i in sizeWin - 1 downTo 0) {
                 window[i] = kotlin.math.exp(-fl * fl / sig2)
-                window[2*sizeWin - i] = window[i]
+                window[2 * sizeWin - i] = window[i]
                 fl++
             }
 
-            for (y in 0 until h){
-                for (x in 0 until w){
+            for (y in 0 until h) {
+                for (x in 0 until w) {
                     var sum = 0.0
                     var red = 0.0
                     var blue = 0.0
                     var green = 0.0
-                    val i = y*w + x
+                    val i = y * w + x
                     val pix: Int = pixels[i]
                     val alpha: Int = Color.alpha(pix)
 
-                    for (k in 0 until 2*sizeWin + 1){
+                    for (k in 0 until 2 * sizeWin + 1) {
                         val l = x + k - sizeWin
-                        if ((l >= 0) && (l < w)){
-                            val helpPix: Int = pixels[y*w + l]
-                            red += Color.red(helpPix)*window[k]
-                            green += Color.green(helpPix)*window[k]
-                            blue += Color.blue(helpPix)*window[k]
+                        if ((l >= 0) && (l < w)) {
+                            val helpPix: Int = pixels[y * w + l]
+                            red += Color.red(helpPix) * window[k]
+                            green += Color.green(helpPix) * window[k]
+                            blue += Color.blue(helpPix) * window[k]
                             sum += window[k]
                         }
                     }
-                    val newRed: Int = (red/sum).toInt()
-                    val newBlue: Int = (blue/sum).toInt()
-                    val newGreen: Int = (green/sum).toInt()
+                    val newRed: Int = (red / sum).toInt()
+                    val newBlue: Int = (blue / sum).toInt()
+                    val newGreen: Int = (green / sum).toInt()
                     pixelsNew[i] = Color.argb(alpha, newRed, newGreen, newBlue)
                 }
             }
-           val newPixelsArr = pixelsNew.copyOf()
+            val newPixelsArr = pixelsNew.copyOf()
 
-            for (x in 0 until w){
-                for (y in 0 until h){
+            for (x in 0 until w) {
+                for (y in 0 until h) {
                     var sum = 0.0
                     var red = 0.0
                     var blue = 0.0
                     var green = 0.0
-                    val i = y*w + x
+                    val i = y * w + x
                     val pix: Int = newPixelsArr[i]
                     val alpha: Int = Color.alpha(pix)
 
-                    for (k in 0 until 2*sizeWin + 1){
+                    for (k in 0 until 2 * sizeWin + 1) {
                         val l = y + k - sizeWin
-                        if ((l >=0) && (l < h)){
-                            val helpPix: Int = newPixelsArr[l*w+x]
-                            red += Color.red(helpPix)*window[k]
-                            green += Color.green(helpPix)*window[k]
-                            blue += Color.blue(helpPix)*window[k]
+                        if ((l >= 0) && (l < h)) {
+                            val helpPix: Int = newPixelsArr[l * w + x]
+                            red += Color.red(helpPix) * window[k]
+                            green += Color.green(helpPix) * window[k]
+                            blue += Color.blue(helpPix) * window[k]
                             sum += window[k]
                         }
                     }
-                    val newRed: Int = (red/sum).toInt()
-                    val newBlue: Int = (blue/sum).toInt()
-                    val newGreen: Int = (green/sum).toInt()
+                    val newRed: Int = (red / sum).toInt()
+                    val newBlue: Int = (blue / sum).toInt()
+                    val newGreen: Int = (green / sum).toInt()
                     pixelsNew[i] = Color.argb(alpha, newRed, newGreen, newBlue)
                 }
             }
 
-            for (x in 0 until w){
-                for (y in 0 until h){
-                    val i = y*w + x
+            for (x in 0 until w) {
+                for (y in 0 until h) {
+                    val i = y * w + x
                     val blurPix: Int = pixelsNew[i]
                     val origPix: Int = pixels[i]
                     val maskRed: Int = Color.red(origPix) - Color.red(blurPix)
@@ -134,24 +135,23 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
                     val alpha: Int = Color.alpha(origPix)
 
 
-
-                    var newRed: Int = (Color.red(origPix) + coef*maskRed).toInt()
-                    var newBlue: Int = (Color.blue(origPix) + coef*maskBlue).toInt()
-                    var newGreen: Int = (Color.green(origPix) + coef*maskGreen).toInt()
+                    var newRed: Int = (Color.red(origPix) + coef * maskRed).toInt()
+                    var newBlue: Int = (Color.blue(origPix) + coef * maskBlue).toInt()
+                    var newGreen: Int = (Color.green(origPix) + coef * maskGreen).toInt()
 
                     if (newRed > 255) {
                         newRed = 255
-                    } else if (newRed < 0){
+                    } else if (newRed < 0) {
                         newRed = 0
                     }
-                    if (newBlue > 255){
+                    if (newBlue > 255) {
                         newBlue = 255
-                    } else if (newBlue < 0){
+                    } else if (newBlue < 0) {
                         newBlue = 0
                     }
-                    if (newGreen > 255){
+                    if (newGreen > 255) {
                         newGreen = 255
-                    } else if (newGreen < 0){
+                    } else if (newGreen < 0) {
                         newGreen = 0
                     }
                     pixels[i] = Color.argb(alpha, newRed, newGreen, newBlue)
@@ -163,20 +163,5 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
 
         }
     }
-
-    override fun doAlgorithm() {
-
-
-        val width = image.getBitmap().width
-        val height = image.getBitmap().height
-        val pixels = IntArray(width * height)
-        image.getBitmap().getPixels(pixels, 0, width, 0, 0, width, height)
-
-
-        /* image.setBitmap(
-             Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, image.getBitmap().config)
-         )*/
-    }
-
 
 }

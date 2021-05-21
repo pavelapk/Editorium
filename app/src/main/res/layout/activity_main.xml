@@ -17,6 +17,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/viewportFragment"
+        android:name="ru.imageella.editorium.ViewportFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="4dp"
@@ -26,17 +27,45 @@
         app:layout_constraintBottom_toTopOf="@id/toolsFragment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        tools:layout="@layout/fragment_viewport" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/toolsFragment"
+        android:name="ru.imageella.editorium.ToolsFragment"
         android:layout_width="0dp"
         android:layout_height="150dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/viewportFragment" />
+        app:layout_constraintTop_toBottomOf="@id/viewportFragment"
+        tools:layout="@layout/fragment_tools" />
+
+    <View
+        android:id="@+id/progressIndicator"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#4D1E1E1E"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        tools:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-7dp"
+        android:indeterminate="true"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        tools:visibility="visible" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

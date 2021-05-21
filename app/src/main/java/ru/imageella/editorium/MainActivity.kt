@@ -4,10 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Path
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.appcompat.app.AppCompatActivity
@@ -15,9 +18,9 @@ import androidx.fragment.app.commit
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.imageella.editorium.databinding.ActivityMainBinding
 import ru.imageella.editorium.interfaces.Algorithm
-import ru.imageella.editorium.interfaces.Viewport
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.interfaces.ToolSelectListener
+import ru.imageella.editorium.interfaces.Viewport
 import ru.imageella.editorium.tools.*
 import java.io.InputStream
 
@@ -75,7 +78,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         android.R.id.home -> {
             if (isToolActive) {
-                previewRotate(0f)
                 lastBitmap?.let { setBitmap(it) }
                 closeTool()
             } else {
@@ -92,7 +94,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         }
 
         R.id.actionDone -> {
-            getCurrentToolFragment()?.doAlgorithm()
+//            getCurrentToolFragment()?.doAlgorithm()
             closeTool()
             true
         }
@@ -132,6 +134,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
 
     private fun closeTool() {
+        previewScale(1f)
+        previewRotate(0f)
+        progressIndicator(null, false)
+        clearOverlay()
+        refresh()
         isToolActive = false
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_image_24)
         toolbarMenu?.apply {
@@ -160,8 +167,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
                 1 -> replace(R.id.toolsFragment, RotateFragment.newInstance(), RotateFragment.TAG)
                 2 -> replace(R.id.toolsFragment, FiltersFragment.newInstance(), FiltersFragment.TAG)
                 3 -> replace(R.id.toolsFragment, ScaleFragment.newInstance(), ScaleFragment.TAG)
-                6 -> replace(R.id.toolsFragment, RetouchingFragment.newInstance(), RetouchingFragment.TAG)
-                7 -> replace(R.id.toolsFragment, UnsharpMaskingFragment.newInstance(), UnsharpMaskingFragment.TAG)
+                4 -> replace(R.id.toolsFragment, FaceFragment.newInstance(), FaceFragment.TAG)
+                6 -> replace(
+                    R.id.toolsFragment,
+                    RetouchingFragment.newInstance(),
+                    RetouchingFragment.TAG
+                )
+                7 -> replace(
+                    R.id.toolsFragment,
+                    UnsharpMaskingFragment.newInstance(),
+                    UnsharpMaskingFragment.TAG
+                )
                 8 -> replace(R.id.toolsFragment, AffineFragment.newInstance(), AffineFragment.TAG)
                 9 -> replace(R.id.toolsFragment, CubeFragment.newInstance(), CubeFragment.TAG)
             }
@@ -188,6 +204,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
     override fun getLastBitmap() = lastBitmap ?: currentBitmap
 
+    private fun disableAllViews(layout: ViewGroup, isEnabled: Boolean) {
+        layout.isEnabled = isEnabled
+        for (i in 0 until layout.childCount) {
+            layout.getChildAt(i).isEnabled = isEnabled
+        }
+    }
+
+    override fun progressIndicator(toolLayout: ViewGroup?, isEnabled: Boolean) {
+        binding.progressIndicator.visibility = if (isEnabled) View.VISIBLE else View.INVISIBLE
+        binding.progressBar.visibility = if (isEnabled) View.VISIBLE else View.INVISIBLE
+        toolLayout?.let { disableAllViews(it, !isEnabled) }
+    }
+
     override fun onImageClick(x: Float, y: Float) {
         getCurrentToolFragment()?.onImageClick(x, y)
     }
@@ -196,12 +225,24 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         getCurrentToolFragment()?.onImageTouchMove(x, y, isStart)
     }
 
+    override fun onImageRotationGesture(angle: Float) {
+        getCurrentToolFragment()?.onImageRotationGesture(angle)
+    }
+
     override fun drawPoint(x: Float, y: Float, width: Float, color: Int) {
         viewport.drawPoint(x, y, width, color)
     }
 
     override fun drawLine(x1: Float, y1: Float, x2: Float, y2: Float, width: Float, color: Int) {
         viewport.drawLine(x1, y1, x2, y2, width, color)
+    }
+
+    override fun drawRect(l: Float, t: Float, r: Float, b: Float, width: Float, color: Int) {
+        viewport.drawRect(l, t, r, b, width, color)
+    }
+
+    override fun drawPath(path: Path, isFill: Boolean, width: Float, color: Int) {
+        viewport.drawPath(path, isFill, width, color)
     }
 
     override fun clearOverlay() {

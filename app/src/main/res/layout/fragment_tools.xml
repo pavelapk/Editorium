@@ -44,11 +44,11 @@
 
             <ImageButton
                 style="@style/ImgBtnColor"
-                android:id="@+id/imageButton4"
+                android:id="@+id/faceToolBtn"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="@android:drawable/btn_star_big_off" />
+                app:srcCompat="@android:drawable/ic_menu_my_calendar" />
 
             <ImageButton
                 style="@style/ImgBtnColor"
@@ -72,7 +72,7 @@
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="?android:attr/textSelectHandle" />/>
+                app:srcCompat="?android:attr/textSelectHandle" />
 
             <ImageButton
                 style="@style/ImgBtnColor"

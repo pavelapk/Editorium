@@ -6,11 +6,18 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ru.imageella.editorium.Filtering
 import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentAffineToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
+import ru.imageella.editorium.utils.PixelsWithSizes
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -24,13 +31,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         fun newInstance() = AffineFragment()
     }
 
-    class PixelsWithSizes(
-        val pixels: IntArray,
-        val w: Int,
-        val h: Int
-    )
-
-    private lateinit var image: ImageHandler
+    private var image: ImageHandler? = null
 
     enum class State {
         START, END, NONE
@@ -57,7 +58,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        image = activity as ImageHandler
+        image = activity as? ImageHandler
 
         binding.startPointsToggle.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -76,7 +77,11 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         }
 
         binding.transformBtn.setOnClickListener {
-            doAlgorithm()
+            viewLifecycleOwner.lifecycleScope.launch {
+                image?.progressIndicator(binding.root, true)
+                doAlgorithm()
+                image?.progressIndicator(binding.root, false)
+            }
         }
 
         val matrix = AffineMatrix.calcMatrix(
@@ -95,7 +100,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
 
     private fun switchState(newState: State) {
         state = newState
-        image.clearOverlay()
+        image?.clearOverlay()
         when (state) {
             State.START -> {
                 binding.endPointsToggle.isEnabled = false
@@ -111,19 +116,18 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
             }
         }
         binding.transformBtn.isEnabled = state == State.NONE
-        image.refresh()
+        image?.refresh()
     }
 
     private fun drawPoints(points: Array<Point>) {
-        image.clearOverlay()
+        image?.clearOverlay()
         for (point in points) {
             if (point.x >= 0 && point.y >= 0)
-                image.drawPoint(point.x, point.y, 25f, point.color)
+                image?.drawPoint(point.x, point.y, 25f, point.color)
         }
     }
 
     override fun onImageClick(x: Float, y: Float) {
-        //image.drawPoint(x, y, 20f, Color.GREEN)
         when (state) {
             State.START -> {
                 startPoints[curStart].x = x
@@ -139,8 +143,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
             }
             else -> return
         }
-        image.refresh()
-
+        image?.refresh()
     }
 
     private class AffineMatrix(var m0: Float, var m1: Float, var m2: Float, var m3: Float) {
@@ -150,8 +153,8 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
                     s[0].x * s[1].y - s[2].y * s[0].x + s[2].x * s[0].y - s[2].x * s[1].y - s[1].x * s[0].y + s[2].y * s[1].x
                 return AffineMatrix(
                     (-s[0].y * e[1].x + s[0].y * e[2].x + s[1].y * e[0].x - s[1].y * e[2].x - s[2].y * e[0].x + s[2].y * e[1].x) / det,
-                    -(-s[0].y * e[1].y + s[0].y * e[2].y + s[1].y * e[0].y - s[1].y * e[2].y - s[2].y * e[0].y + s[2].y * e[1].y) / det,
-                    -(s[0].x * e[1].x - s[0].x * e[2].x + s[2].x * e[0].x - s[2].x * e[1].x - s[1].x * e[0].x + s[1].x * e[2].x) / det,
+                    (-s[0].y * e[1].y + s[0].y * e[2].y + s[1].y * e[0].y - s[1].y * e[2].y - s[2].y * e[0].y + s[2].y * e[1].y) / det,
+                    (s[0].x * e[1].x - s[0].x * e[2].x + s[2].x * e[0].x - s[2].x * e[1].x - s[1].x * e[0].x + s[1].x * e[2].x) / det,
                     (s[0].x * e[1].y - s[0].x * e[2].y + s[2].x * e[0].y - s[2].x * e[1].y - s[1].x * e[0].y + s[1].x * e[2].y) / det
                 )
             }
@@ -159,31 +162,31 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
     }
 
 
-    override fun doAlgorithm() {
-        val width = image.getBitmap().width
-        val height = image.getBitmap().height
+    private suspend fun doAlgorithm() {
+        val bmp = image?.getBitmap() ?: return
+        val width = bmp.width
+        val height = bmp.height
         val pixels = IntArray(width * height)
-        image.getBitmap().getPixels(pixels, 0, width, 0, 0, width, height)
+        bmp.getPixels(pixels, 0, width, 0, 0, width, height)
 
         var curPic = PixelsWithSizes(pixels, width, height)
 
         curPic = transformPic(curPic)
-        image.setBitmap(
-            Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, image.getBitmap().config)
+        image?.setBitmap(
+            Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, bmp.config)
         )
     }
 
+    private fun triangleArea(a: Point, b: Point, c: Point): Float {
+        return abs((a.x - c.x) * (b.y - c.y) - (b.x - c.x) * (a.y - c.y)) / 2
+    }
 
-    private fun roundCoord(xy: Pair<Float, Float>): Pair<Int, Int> =
-        Pair(xy.first.roundToInt(), xy.second.roundToInt())
-
-
-    private fun applyMatrix(xy: Pair<Int, Int>, matrix: AffineMatrix): Pair<Int, Int> {
+    private fun applyMatrix(xy: Pair<Int, Int>, matrix: AffineMatrix): Pair<Float, Float> {
         val x = xy.first
         val y = xy.second
-        val nx = x * matrix.m0 + y * matrix.m1
-        val ny = x * matrix.m2 + y * matrix.m3
-        return roundCoord(Pair(nx, ny))
+        val nx = x * matrix.m0 + y * matrix.m2
+        val ny = x * matrix.m1 + y * matrix.m3
+        return Pair(nx, ny)
     }
 
     private fun calcNewSizes(w: Int, h: Int): Array<Int> {
@@ -194,36 +197,76 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         val p2 = applyMatrix(Pair(w - 1, h - 1), matrix)
         val p3 = applyMatrix(Pair(0, h - 1), matrix)
 
-        val l = minOf(p0.first, p1.first, p2.first, p3.first)
-        val r = maxOf(p0.first, p1.first, p2.first, p3.first)
-        val t = minOf(p0.second, p1.second, p2.second, p3.second)
-        val b = maxOf(p0.second, p1.second, p2.second, p3.second)
+        val l = minOf(p0.first, p1.first, p2.first, p3.first).roundToInt()
+        val r = maxOf(p0.first, p1.first, p2.first, p3.first).roundToInt()
+        val t = minOf(p0.second, p1.second, p2.second, p3.second).roundToInt()
+        val b = maxOf(p0.second, p1.second, p2.second, p3.second).roundToInt()
 
         val nw = r - l + 1
         val nh = b - t + 1
         return arrayOf(nw, nh, l, t)
     }
 
-    private fun transformPic(pic: PixelsWithSizes): PixelsWithSizes {
-        val w = pic.w
-        val h = pic.h
-        val (nw, nh, l, t) = calcNewSizes(w, h)
-        val matrix = AffineMatrix.calcMatrix(endPoints, startPoints)
-        Log.d("DAROVA", "2 ${matrix.m0}, ${matrix.m1}, ${matrix.m2}, ${matrix.m3}")
-        val newPic = IntArray(nw * nh)
-        for (nx in 0 until nw) {
-            for (ny in 0 until nh) {
-                val (x, y) = applyMatrix(Pair(nx + l, ny + t), matrix)
+    private suspend fun transformPic(pic: PixelsWithSizes): PixelsWithSizes =
+        withContext(Dispatchers.Default) {
+            val w = pic.w
+            val h = pic.h
+            val (nw, nh, l, t) = calcNewSizes(w, h)
+            val matrix = AffineMatrix.calcMatrix(endPoints, startPoints)
+            val oldArea = triangleArea(startPoints[0], startPoints[1], startPoints[2])
+            val newArea = triangleArea(endPoints[0], endPoints[1], endPoints[2])
 
-                if (x in 0 until w && y in 0 until h) {
-                    val i = y * w + x
-                    val ni = ny * nw + nx
-                    newPic[ni] = pic.pixels[i]
+            val newPic = IntArray(nw * nh)
+
+            if (newArea / oldArea >= 1f) {
+                for (nx in 0 until nw) {
+                    for (ny in 0 until nh) {
+                        val ni = ny * nw + nx
+                        val (x, y) = applyMatrix(Pair(nx + l, ny + t), matrix)
+                        if (0 <= x && x < w && 0 <= y && y < h) {
+                            newPic[ni] = Filtering.doBilinearFilteredPixelColor(
+                                pic,
+                                x,
+                                y
+                            )
+                        }
+                    }
+                }
+            } else {
+                val k = oldArea / newArea
+                var m = 1
+                while (m <= k) {
+                    m *= 2
+                }
+                m /= 2
+
+                var mPic = pic
+                var curM = 1
+                while (curM < m) {
+                    mPic = Filtering.halfSize(mPic)
+                    curM *= 2
+                }
+                val m2Pic = Filtering.halfSize(mPic)
+
+                for (nx in 0 until nw) {
+                    for (ny in 0 until nh) {
+                        val ni = ny * nw + nx
+                        val (x, y) = applyMatrix(Pair(nx + l, ny + t), matrix)
+                        if (0 <= x && x < w && 0 <= y && y < h) {
+                            newPic[ni] = Filtering.doTrilinearFilteredPixelColor(
+                                mPic,
+                                m2Pic,
+                                m,
+                                k,
+                                x,
+                                y
+                            )
+                        }
+                    }
                 }
             }
-        }
 
-        return PixelsWithSizes(newPic, nw, nh)
-    }
+            PixelsWithSizes(newPic, nw, nh)
+        }
 
 }
