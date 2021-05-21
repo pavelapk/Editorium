@@ -135,7 +135,7 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
     private var lastX = 0f
     private var lastY = 0f
 
-    override fun onImageTouchMove(x: Float, y: Float, isStart: Boolean) {
+    override fun onImageTouchMove(xRaw: Float, yRaw: Float, x: Float, y: Float, isStart: Boolean) {
         if (!isStart) {
             val deltaX = (y - lastY) * -rotateSpeed
             val deltaY = (x - lastX) * rotateSpeed

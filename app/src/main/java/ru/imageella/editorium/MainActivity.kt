@@ -180,6 +180,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
                 )
                 8 -> replace(R.id.toolsFragment, AffineFragment.newInstance(), AffineFragment.TAG)
                 9 -> replace(R.id.toolsFragment, CubeFragment.newInstance(), CubeFragment.TAG)
+                5 -> replace(R.id.toolsFragment, SplineFragment.newInstance(), SplineFragment.TAG)
             }
 
         }
@@ -221,8 +222,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         getCurrentToolFragment()?.onImageClick(x, y)
     }
 
-    override fun onImageTouchMove(x: Float, y: Float, isStart: Boolean) {
-        getCurrentToolFragment()?.onImageTouchMove(x, y, isStart)
+    override fun onImageTouchMove(xRaw:Float, yRaw:Float, x: Float, y: Float, isStart: Boolean) {
+        getCurrentToolFragment()?.onImageTouchMove(xRaw, yRaw, x, y, isStart)
     }
 
     override fun onImageRotationGesture(angle: Float) {

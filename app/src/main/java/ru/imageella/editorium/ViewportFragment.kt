@@ -55,6 +55,8 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
                 MotionEvent.ACTION_DOWN -> {
                     image?.onImageClick(event.x, event.y)
                     image?.onImageTouchMove(
+                        event.x,
+                        event.y,
                         event.x / v.width,
                         event.y / v.height,
                         true
@@ -63,6 +65,8 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
                 }
                 MotionEvent.ACTION_MOVE -> if (!rotationDetector.isRotationActive) {
                     image?.onImageTouchMove(
+                        event.x,
+                        event.y,
                         event.x / v.width,
                         event.y / v.height,
                         lastRotationActive

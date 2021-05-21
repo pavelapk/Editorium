@@ -34,7 +34,7 @@
         android:id="@+id/toolsFragment"
         android:name="ru.imageella.editorium.ToolsFragment"
         android:layout_width="0dp"
-        android:layout_height="150dp"
+        android:layout_height="@dimen/tool_height"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
