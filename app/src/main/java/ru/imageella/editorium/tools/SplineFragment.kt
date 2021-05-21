@@ -62,11 +62,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
             val seekBarChangeListener: SeekBar.OnSeekBarChangeListener = object :
                 SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    currentRatio = (seekBar.progress.toFloat()) / 10
+                    currentRatio = (progress.toFloat()) / 10
                     allPoints[indexPoint].ratio = currentRatio
                     drawPoints(allPoints)
                     image.drawLine(
@@ -80,15 +76,15 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                     doAlgorithm()
                     image.refresh()
                 }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                }
             }
             val leftSeekBarChangeListener: SeekBar.OnSeekBarChangeListener = object :
                 SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    currentRatioLeft = (seekBar.progress.toFloat()) / 25
+                    currentRatioLeft = (progress.toFloat()) / 25
                     allPoints[indexPoint].ratioElongationLeft = currentRatioLeft
                     drawPoints(allPoints)
                     image.drawLine(
@@ -102,15 +98,15 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                     doAlgorithm()
                     image.refresh()
                 }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
+                }
             }
             val rightSeekBarChangeListener: SeekBar.OnSeekBarChangeListener = object :
                 SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar) {
-                    currentRatioRight = (seekBar.progress.toFloat()) / 25
+                    currentRatioRight = (progress.toFloat()) / 25
                     allPoints[indexPoint].ratioElongationRight = currentRatioRight
                     drawPoints(allPoints)
                     image.drawLine(
@@ -123,6 +119,10 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                     )
                     doAlgorithm()
                     image.refresh()
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar) {
                 }
             }
             if (checkEditBtn) {
@@ -251,7 +251,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
         return intermediateLine
     }
 
-    override fun doAlgorithm() {
+    private fun doAlgorithm() {
 //        var lastPoint: Point? = null
         var currentLine: Line
         var lastLine: Line? = null
