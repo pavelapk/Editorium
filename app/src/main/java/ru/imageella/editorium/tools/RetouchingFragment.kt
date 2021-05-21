@@ -23,24 +23,26 @@ class RetouchingFragment : Fragment(R.layout.fragment_retouching_tool), Algorith
         fun newInstance() = RetouchingFragment()
     }
 
-    private lateinit var image: ImageHandler
+    private var image: ImageHandler? = null
     private var xRet = 0
     private var yRet = 0
     private var sigma = 3.0
     private var radius = 10
 
     override fun onImageTouchMove(xRaw: Float, yRaw: Float, x: Float, y: Float, isStart: Boolean) {
-        xRet = (x * image.getLastBitmap().width).toInt()
-        yRet = (y * image.getLastBitmap().height).toInt()
+        val lastBmp = image?.getLastBitmap() ?: return
+        xRet = (x * lastBmp.width).toInt()
+        yRet = (y * lastBmp.height).toInt()
         algorithm()
     }
 
     private fun algorithm() {
-
-        val w = image.getLastBitmap().width
-        val h = image.getLastBitmap().height
+        val lastBmp = image?.getLastBitmap() ?: return
+        val bmp = image?.getBitmap() ?: return
+        val w = lastBmp.width
+        val h = lastBmp.height
         val pixels = IntArray(w * h)
-        image.getBitmap().getPixels(pixels, 0, w, 0, 0, w, h)
+        bmp.getPixels(pixels, 0, w, 0, 0, w, h)
         val pixelsNew = pixels.copyOf()
 
         val sig2 = 2 * sigma * sigma
@@ -128,15 +130,15 @@ class RetouchingFragment : Fragment(R.layout.fragment_retouching_tool), Algorith
                 pixelsNew[i] = Color.argb(alpha, newRed, newGreen, newBlue)
             }
         }
-        image.setBitmap(
-            Bitmap.createBitmap(pixelsNew, w, h, image.getLastBitmap().config)
+        image?.setBitmap(
+            Bitmap.createBitmap(pixelsNew, w, h, lastBmp.config)
         )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        image = activity as ImageHandler
+        image = activity as? ImageHandler
 
         binding.sigmaSeekBar2.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {

@@ -25,7 +25,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
     private class Point(var x: Float, var y: Float, var ratio:Float, var ratioElongationLeft: Float, var ratioElongationRight: Float)
     private class Line(var point1: Point, var point2: Point, k: Float)
 
-    private lateinit var image: ImageHandler
+    private var image: ImageHandler? = null
     private var currentRatio = 0.5f
     private var currentRatioLeft = 1f
     private var currentRatioRight = 1f
@@ -38,7 +38,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        image = activity as ImageHandler
+        image = activity as? ImageHandler
 
 
 
@@ -65,7 +65,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                     currentRatio = (progress.toFloat()) / 10
                     allPoints[indexPoint].ratio = currentRatio
                     drawPoints(allPoints)
-                    image.drawLine(
+                    image?.drawLine(
                         allIntermediateLines[indexPoint - 1].point1.x,
                         allIntermediateLines[indexPoint - 1].point1.y,
                         allIntermediateLines[indexPoint - 1].point2.x,
@@ -74,7 +74,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                         Color.YELLOW
                     )
                     doAlgorithm()
-                    image.refresh()
+                    image?.refresh()
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -87,7 +87,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                     currentRatioLeft = (progress.toFloat()) / 25
                     allPoints[indexPoint].ratioElongationLeft = currentRatioLeft
                     drawPoints(allPoints)
-                    image.drawLine(
+                    image?.drawLine(
                         allIntermediateLines[indexPoint - 1].point1.x,
                         allIntermediateLines[indexPoint - 1].point1.y,
                         allIntermediateLines[indexPoint - 1].point2.x,
@@ -96,7 +96,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                         Color.YELLOW
                     )
                     doAlgorithm()
-                    image.refresh()
+                    image?.refresh()
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -109,7 +109,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                     currentRatioRight = (progress.toFloat()) / 25
                     allPoints[indexPoint].ratioElongationRight = currentRatioRight
                     drawPoints(allPoints)
-                    image.drawLine(
+                    image?.drawLine(
                         allIntermediateLines[indexPoint - 1].point1.x,
                         allIntermediateLines[indexPoint - 1].point1.y,
                         allIntermediateLines[indexPoint - 1].point2.x,
@@ -118,7 +118,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                         Color.YELLOW
                     )
                     doAlgorithm()
-                    image.refresh()
+                    image?.refresh()
                 }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -136,11 +136,11 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
             allPoints.clear()
             allIntermediateLines.clear()
             state = 1
-            image.clearOverlay()
-            image.refresh()
+            image?.clearOverlay()
+            image?.refresh()
         }
         binding.applyBtn.setOnClickListener {
-            image.clearOverlay()
+            image?.clearOverlay()
             doAlgorithm()
         }
     }
@@ -156,7 +156,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
         allPoints[indexPoint].y = y.toFloat()
         drawPoints(allPoints)
         doAlgorithm()
-        image.drawLine(
+        image?.drawLine(
             allIntermediateLines[indexPoint - 1].point1.x,
             allIntermediateLines[indexPoint - 1].point1.y,
             allIntermediateLines[indexPoint - 1].point2.x,
@@ -165,19 +165,19 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
             Color.YELLOW
         )
 
-        image.refresh()
+        image?.refresh()
     }
 
     private fun drawPoints(points: MutableList<Point>) {
-        image.clearOverlay()
+        image?.clearOverlay()
         var lastPoint: Point? = null
         for (point in points) {
             if (point.x >= 0 && point.y >= 0) {
-                image.drawPoint(point.x, point.y, 25f, Color.RED)
+                image?.drawPoint(point.x, point.y, 25f, Color.RED)
             }
 
             if (points.size > 1 && lastPoint != null) {
-                image.drawLine(lastPoint.x, lastPoint.y, point.x, point.y, 5f, Color.GREEN)
+                image?.drawLine(lastPoint.x, lastPoint.y, point.x, point.y, 5f, Color.GREEN)
             }
             lastPoint = point
         }
@@ -217,7 +217,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
             else -> 222
         }
         doAlgorithm()
-        image.refresh()
+        image?.refresh()
     }
     private fun getCoordPoint(point1: Point, point2: Point, k: Float): Point {
         val coordVectorX = (point2.x - point1.x) * k
@@ -280,7 +280,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
 
             }
         }
-        image.refresh()
+        image?.refresh()
     }
 
     private fun doBezierCurve(p1: Point, p2: Point, p3: Point, p4: Point) {
@@ -307,11 +307,11 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                     3
                 )) * p4.y
             )
-            image.drawLine(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y, 5f, Color.BLUE)
+            image?.drawLine(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y, 5f, Color.BLUE)
             t += deltaT
         }
-        image.drawLine(currentPoint.x, currentPoint.y, p4.x, p4.y, 5f, Color.BLUE)
-        image.refresh()
+        image?.drawLine(currentPoint.x, currentPoint.y, p4.x, p4.y, 5f, Color.BLUE)
+        image?.refresh()
     }
 
 }
