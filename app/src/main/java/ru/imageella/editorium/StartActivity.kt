@@ -12,6 +12,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.imageella.editorium.databinding.ActivityStartBinding
 import java.io.File
@@ -79,20 +80,31 @@ class StartActivity : AppCompatActivity(R.layout.activity_start) {
     private fun takePicturePrepare() {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val name = "JPEG_${timeStamp}"
-        val dir = Environment.DIRECTORY_DCIM + File.separator + "Editorium"
+        val dir = Environment.DIRECTORY_DCIM
+        val appDirName = "Editorium"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val resolver = contentResolver
             val contentValues = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, "$name.jpg")
                 put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, dir)
+                put(MediaStore.MediaColumns.RELATIVE_PATH, dir + File.separator + appDirName)
             }
             photoURI =
                 resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
         } else {
             try {
                 val storageDir = Environment.getExternalStoragePublicDirectory(dir)
-                photoURI = Uri.fromFile(File(storageDir, "$name.jpg"))
+                val appDir = File(storageDir, appDirName)
+                if (!appDir.exists()) {
+                    if (!appDir.mkdirs()) {
+                        Log.d("MyCameraApp", "failed to create directory");
+                    }
+                }
+                photoURI = FileProvider.getUriForFile(
+                    this,
+                    "ru.imageella.fileprovider",
+                    File(appDir, "$name.jpg")
+                )
             } catch (ex: IOException) {
                 Log.e("DAROVA", "create file", ex)
             }
