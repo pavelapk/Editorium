@@ -45,12 +45,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
         val uri = intent.getParcelableExtra<Uri>(StartActivity.EXTRA_IMAGE_URI)
 
-        currentBitmap = if (uri != null) {
-            val imageStream: InputStream? = contentResolver.openInputStream(uri)
-            BitmapFactory.decodeStream(imageStream).copy(Bitmap.Config.ARGB_8888, true)
-        } else {
-            Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
-        }
+
+        currentBitmap = uri?.let {
+            BitmapFactory.decodeStream(
+                contentResolver.openInputStream(it),
+                null,
+                BitmapFactory.Options().apply { inMutable = true })
+        } ?: Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
 
         val viewportFragment = ViewportFragment.newInstance()
 
@@ -253,7 +254,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
     override fun refresh() {
         viewport.refresh()
     }
-    override fun drawCanvasToImage(){
+
+    override fun drawCanvasToImage() {
         viewport.drawCanvasToImage()
     }
 

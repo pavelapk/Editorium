@@ -113,10 +113,18 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
     override fun refresh() {
         binding.overlayImage.invalidate()
     }
+
     override fun drawCanvasToImage() {
         val bmp = image?.getBitmap() ?: return
         val imageCanvas = Canvas(bmp)
-        overlayBitmap?.let { imageCanvas.drawBitmap(it, null, Rect(0, 0, bmp.width, bmp.height), null) }
+        overlayBitmap?.let {
+            imageCanvas.drawBitmap(
+                it,
+                null,
+                Rect(0, 0, bmp.width, bmp.height),
+                null
+            )
+        }
         setBitmap(bmp)
     }
 
