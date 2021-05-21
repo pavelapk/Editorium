@@ -6,11 +6,16 @@ import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentUnsharpMaskingToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
+import kotlin.math.exp
 
 class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool), Algorithm {
 
@@ -23,13 +28,13 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
     }
 
     private var image: ImageHandler? = null
+    private var sigma = 3.0
+    private var coef = 1.0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         image = activity as? ImageHandler
-        var sigma = 3.0
-        var coef = 1.0
         binding.sigmaSeekBar2.setOnSeekBarChangeListener(object :
             SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -52,11 +57,22 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
         })
 
         binding.maskBtn.setOnClickListener {
-            val lastBmp = image?.getLastBitmap() ?: return@setOnClickListener
-            val w = lastBmp.width
-            val h = lastBmp.height
-            val pixels = IntArray(w * h)
-            val pixelsNew = IntArray(w * h)
+            viewLifecycleOwner.lifecycleScope.launch {
+                image?.progressIndicator(binding.root, true)
+                doAlgorithm()
+                image?.progressIndicator(binding.root, false)
+            }
+        }
+    }
+
+    private suspend fun doAlgorithm() {
+        val lastBmp = image?.getLastBitmap() ?: return
+        val w = lastBmp.width
+        val h = lastBmp.height
+        val pixels = IntArray(w * h)
+        val pixelsNew = IntArray(w * h)
+
+        withContext(Dispatchers.Default) {
             lastBmp.getPixels(pixels, 0, w, 0, 0, w, h)
 
             val sig2 = 2 * sigma * sigma
@@ -65,11 +81,10 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
             var fl = 1
             window[sizeWin] = 1.0
             for (i in sizeWin - 1 downTo 0) {
-                window[i] = kotlin.math.exp(-fl * fl / sig2)
+                window[i] = exp(-fl * fl / sig2)
                 window[2 * sizeWin - i] = window[i]
                 fl++
             }
-
             for (y in 0 until h) {
                 for (x in 0 until w) {
                     var sum = 0.0
@@ -158,11 +173,10 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
                     pixels[i] = Color.argb(alpha, newRed, newGreen, newBlue)
                 }
             }
-            image?.setBitmap(
-                Bitmap.createBitmap(pixels, w, h, lastBmp.config)
-            )
-
         }
+        image?.setBitmap(
+            Bitmap.createBitmap(pixels, w, h, lastBmp.config)
+        )
     }
 
 }

@@ -2,7 +2,7 @@ package ru.imageella.editorium.utils
 
 import ru.imageella.editorium.tools.CubeFragment
 
-class Digit(val value: Int) {
+class Digit(value: Int) {
     val points = when (value) {
         0 -> arrayOf(
             CubeFragment.Point(-1f, -2f),

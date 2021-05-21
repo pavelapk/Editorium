@@ -55,7 +55,7 @@
         android:id="@+id/applyBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Применить"
+        android:text="@string/doAlgorithm"
         app:layout_constraintBottom_toBottomOf="@+id/deleteBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="3"

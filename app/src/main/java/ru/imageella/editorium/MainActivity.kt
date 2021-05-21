@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
         getCurrentToolFragment()?.onImageClick(x, y)
     }
 
-    override fun onImageTouchMove(xRaw:Float, yRaw:Float, x: Float, y: Float, isStart: Boolean) {
+    override fun onImageTouchMove(xRaw: Float, yRaw: Float, x: Float, y: Float, isStart: Boolean) {
         getCurrentToolFragment()?.onImageTouchMove(xRaw, yRaw, x, y, isStart)
     }
 
