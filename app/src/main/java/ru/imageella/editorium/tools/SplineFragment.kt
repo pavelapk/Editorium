@@ -195,6 +195,9 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                     5f,
                     Color.YELLOW
                 )
+                binding.rotateSeekBar.progress = 50
+                binding.elongationLeftSeekBar.progress = 50
+                binding.elongationRightSeekBar.progress = 50
             }
             image?.refresh()
         }
