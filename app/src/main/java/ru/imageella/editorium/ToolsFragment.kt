@@ -24,7 +24,6 @@ class ToolsFragment : Fragment(R.layout.fragment_tools) {
         binding.rotateToolBtn.setOnClickListener {
             (activity as? ToolSelectListener)?.onToolClick(1)
         }
-
         binding.filtersToolBtn.setOnClickListener {
             (activity as? ToolSelectListener)?.onToolClick(2)
         }

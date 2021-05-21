@@ -3,7 +3,6 @@ package ru.imageella.editorium
 import android.annotation.SuppressLint
 import android.graphics.*
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.graphics.scale
@@ -26,23 +25,24 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
     }
 
     private val canvas = Canvas()
-    private val paint = Paint().apply {
-        color = Color.RED
-    }
+    private val paint = Paint()
 
+    private var image: ImageHandler? = null
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        image = activity as? ImageHandler
+
         binding.root.post {
-            setBitmap((activity as ImageHandler).getBitmap())
+            image?.let { setBitmap(it.getBitmap()) }
         }
 
         val rotationDetector = RotationGestureDetector(binding.overlayImage,
             object : RotationGestureDetector.OnRotationGestureListener {
                 override fun onRotation(angle: Float) {
-                    (activity as ImageHandler).onImageRotationGesture(angle)
+                    image?.onImageRotationGesture(angle)
                 }
 
             })
@@ -53,8 +53,8 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
             rotationDetector.onTouchEvent(event)
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    (activity as ImageHandler).onImageClick(event.x, event.y)
-                    (activity as ImageHandler).onImageTouchMove(
+                    image?.onImageClick(event.x, event.y)
+                    image?.onImageTouchMove(
                         event.x / v.width,
                         event.y / v.height,
                         true
@@ -62,7 +62,7 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
                     v.performClick()
                 }
                 MotionEvent.ACTION_MOVE -> if (!rotationDetector.isRotationActive) {
-                    (activity as ImageHandler).onImageTouchMove(
+                    image?.onImageTouchMove(
                         event.x / v.width,
                         event.y / v.height,
                         lastRotationActive
