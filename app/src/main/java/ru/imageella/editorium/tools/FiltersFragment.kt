@@ -162,6 +162,7 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
         val l1 = (y - 6).coerceAtLeast(0)
         val k2 = (x + 6).coerceAtMost(w - 1)
         val l2 = (y + 6).coerceAtMost(h - 1)
+        var sum = 0
         for (t in k1 until k2) {
             for (j in l1 until l2) {
                 val num = j * w + t
@@ -169,6 +170,7 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
                 val oldRed: Int = Color.red(oldPix)
                 val oldBlue: Int = Color.blue(oldPix)
                 val oldGreen: Int = Color.green(oldPix)
+                sum++
 
                 red += oldRed
                 blue += oldBlue
@@ -176,9 +178,9 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
             }
         }
 
-        val newRed: Int = red / pixels.size
-        val newBlue: Int = blue / pixels.size
-        val newGreen: Int = green / pixels.size
+        val newRed: Int = red / sum
+        val newBlue: Int = blue / sum
+        val newGreen: Int = green / sum
         return Color.argb(alpha, newRed, newGreen, newBlue)
     }
 
