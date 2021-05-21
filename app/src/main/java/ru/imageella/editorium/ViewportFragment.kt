@@ -26,6 +26,7 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
 
     private val canvas = Canvas()
     private val paint = Paint()
+    private var overlayBitmap: Bitmap? = null
 
     private var image: ImageHandler? = null
 
@@ -112,6 +113,12 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
     override fun refresh() {
         binding.overlayImage.invalidate()
     }
+    override fun drawCanvasToImage() {
+        val bmp = image?.getBitmap() ?: return
+        val imageCanvas = Canvas(bmp)
+        overlayBitmap?.let { imageCanvas.drawBitmap(it, null, Rect(0, 0, bmp.width, bmp.height), null) }
+        setBitmap(bmp)
+    }
 
     override fun setBitmap(bitmap: Bitmap) {
 
@@ -130,7 +137,7 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
         )
 
         binding.currentImage.post {
-            val overlayBitmap = Bitmap.createBitmap(
+            overlayBitmap = Bitmap.createBitmap(
                 binding.currentImage.width,
                 binding.currentImage.height,
                 Bitmap.Config.ARGB_8888
