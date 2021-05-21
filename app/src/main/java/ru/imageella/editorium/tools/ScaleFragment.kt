@@ -18,6 +18,7 @@ import ru.imageella.editorium.databinding.FragmentScaleToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.utils.PixelsWithSizes
+import kotlin.math.ceil
 
 class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
 
@@ -64,8 +65,8 @@ class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
         val bmp = image?.getBitmap() ?: return
         val width = bmp.width
         val height = bmp.height
-        val nw = (width * currentRatio).toInt()
-        val nh = (height * currentRatio).toInt()
+        val nw = ceil(width * currentRatio).toInt()
+        val nh = ceil(height * currentRatio).toInt()
         val pixels = IntArray(width * height)
         val newPixels = IntArray(nw * nh)
 
