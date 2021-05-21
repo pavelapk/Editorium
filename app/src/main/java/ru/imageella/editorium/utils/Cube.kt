@@ -1,7 +1,6 @@
 package ru.imageella.editorium.utils
 
 import android.graphics.Color
-import ru.imageella.editorium.tools.CubeFragment
 
 class Cube {
     companion object {

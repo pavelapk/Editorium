@@ -22,7 +22,14 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
         fun newInstance() = SplineFragment()
     }
 
-    private class Point(var x: Float, var y: Float, var ratio:Float, var ratioElongationLeft: Float, var ratioElongationRight: Float)
+    private class Point(
+        var x: Float,
+        var y: Float,
+        var ratio: Float,
+        var ratioElongationLeft: Float,
+        var ratioElongationRight: Float
+    )
+
     private class Line(var point1: Point, var point2: Point, k: Float)
 
     private var image: ImageHandler? = null
@@ -50,10 +57,9 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
         }
         binding.editBtn.setOnClickListener {
             checkEditBtn = !checkEditBtn
-            if (checkEditBtn){
+            if (checkEditBtn) {
                 binding.editGroup.visibility = View.VISIBLE
-            }
-            else{
+            } else {
                 binding.editGroup.visibility = View.INVISIBLE
                 state = 1
             }
@@ -219,16 +225,37 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
         doAlgorithm()
         image?.refresh()
     }
+
     private fun getCoordPoint(point1: Point, point2: Point, k: Float): Point {
         val coordVectorX = (point2.x - point1.x) * k
         val coordVectorY = (point2.y - point1.y) * k
         return Point(coordVectorX + point1.x, coordVectorY + point1.y, 0.5f, 1f, 1f)
     }
-    private fun getIntermediateLines(point: Point, point1: Point, point2: Point, ratio: Float, ratioElongationLeft: Float, ratioElongationRight: Float): Line {
+
+    private fun getIntermediateLines(
+        point: Point,
+        point1: Point,
+        point2: Point,
+        ratio: Float,
+        ratioElongationLeft: Float,
+        ratioElongationRight: Float
+    ): Line {
         val line1 = ((point1.x - point.x).pow(2) + (point1.y - point.y).pow(2)).pow(1 / 2)
         val line2 = ((point2.x - point.x).pow(2) + (point2.y - point.y).pow(2)).pow(1 / 2)
-        var centreLine1 = Point((point1.x + point.x * ratio) / (1 + ratio) , (point1.y + point.y* ratio) / (1 + ratio), 0.5f, 1f, 1f)
-        var centreLine2 = Point((point2.x * ratio + point.x ) / (1 + ratio), (point2.y* ratio + point.y) / (1 + ratio), 0.5f, 1f, 1f)
+        var centreLine1 = Point(
+            (point1.x + point.x * ratio) / (1 + ratio),
+            (point1.y + point.y * ratio) / (1 + ratio),
+            0.5f,
+            1f,
+            1f
+        )
+        var centreLine2 = Point(
+            (point2.x * ratio + point.x) / (1 + ratio),
+            (point2.y * ratio + point.y) / (1 + ratio),
+            0.5f,
+            1f,
+            1f
+        )
         val k = line1 / line2
         val B = Point(
             ((centreLine1.x + k * centreLine2.x) / (1 + k)),
@@ -291,11 +318,18 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
 //        val mX = -3 * ((1 - t).pow(2)) * p1.x + 3 * (1 - 4 * t + 3 * (t.pow(2))) * p2.x +3 * t * (2 - 3 * t) * p3.x + 3 * (t.pow(2)) * p4.x
 //        val mY = -3 * ((1 - t).pow(2)) * p1.y + 3 * (1 - 4 * t + 3 * (t.pow(2))) * p2.y +3 * t * (2 - 3 * t) * p3.y + 3 * (t.pow(2)) * p4.y
 
-        var currentPoint = Point(p1.x, p1.y, p1.ratio, p1.ratioElongationLeft, p1.ratioElongationRight)
+        val currentPoint =
+            Point(p1.x, p1.y, p1.ratio, p1.ratioElongationLeft, p1.ratioElongationRight)
         var lastPoint: Point
 
         while (t <= 1f) {
-            lastPoint = Point(currentPoint.x, currentPoint.y, currentPoint.ratio, currentPoint.ratioElongationLeft, currentPoint.ratioElongationRight)
+            lastPoint = Point(
+                currentPoint.x,
+                currentPoint.y,
+                currentPoint.ratio,
+                currentPoint.ratioElongationLeft,
+                currentPoint.ratioElongationRight
+            )
 
             currentPoint.x = round(
                 (1 - t).pow(3) * p1.x + 3 * t * ((1 - t).pow(2)) * p2.x + 3 * (t.pow(2)) * (1 - t) * p3.x + (t.pow(
@@ -307,7 +341,14 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                     3
                 )) * p4.y
             )
-            image?.drawLine(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y, 5f, Color.BLUE)
+            image?.drawLine(
+                lastPoint.x,
+                lastPoint.y,
+                currentPoint.x,
+                currentPoint.y,
+                5f,
+                Color.BLUE
+            )
             t += deltaT
         }
         image?.drawLine(currentPoint.x, currentPoint.y, p4.x, p4.y, 5f, Color.BLUE)
