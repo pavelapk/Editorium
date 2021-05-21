@@ -33,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:text="200x200 px" />
+        android:text="@string/_200x200_px" />
 
     <TextView
         android:id="@+id/previewWarningTV"
@@ -43,7 +43,7 @@
         android:alpha="0.4"
         android:shadowColor="#B3000000"
         android:shadowRadius="4"
-        android:text="ПРЕДПРОСМОТР"
+        android:text="@string/preview"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="36sp"
