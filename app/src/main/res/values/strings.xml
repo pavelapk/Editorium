@@ -2,4 +2,20 @@
     <string name="app_name">Editorium</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="_200x200_px">200x200 px</string>
+    <string name="preview">ПРЕДПРОСМОТР</string>
+    <string name="sigma">sigma</string>
+    <string name="coefficient">coefficient</string>
+    <string name="doAlgorithm">Применить</string>
+    <string name="numScale">1</string>
+    <string name="numRotate">0</string>
+    <string name="radius">radius</string>
+    <string name="find">Обнаружить</string>
+    <string name="startPoints">Начальные</string>
+    <string name="place">Ставьте</string>
+    <string name="endPoints">Конечные</string>
+    <string name="changeImg">Преобразовать</string>
+    <string name="makePhoto">Сделать фото</string>
+    <string name="fromGallery">Загрузить из галереи</string>
+
 </resources>

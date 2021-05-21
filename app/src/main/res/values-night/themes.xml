@@ -2,9 +2,11 @@
     <!-- Base application theme. -->
     <style name="Theme.Editorium" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimary">@color/ColorBackgroundButton</item>
+        <item name="colorPrimaryVariant">@color/ColorBackgroundBtnDark</item>
         <item name="colorOnPrimary">@color/black</item>
+        <item name="android:windowBackground">@color/ColorBackgroundDark</item>
+        <item name="android:colorBackground">@color/ColorBackgroundDark</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
         <item name="colorSecondaryVariant">@color/teal_200</item>

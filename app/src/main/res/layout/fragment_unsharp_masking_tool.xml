@@ -34,7 +34,7 @@
         android:id="@+id/maskBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="@string/doAlgorithm"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -46,7 +46,7 @@
         android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="5dp"
-        android:text="sigma"
+        android:text="@string/sigma"
         app:layout_constraintBottom_toBottomOf="@+id/sigmaSeekBar2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/sigmaSeekBar2" />
@@ -57,7 +57,7 @@
         android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="5dp"
-        android:text="coefficient"
+        android:text="@string/coefficient"
         app:layout_constraintBottom_toBottomOf="@+id/coefSeekBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/coefSeekBar" />

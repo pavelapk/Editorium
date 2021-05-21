@@ -11,7 +11,7 @@
     <Button
         style="@style/Button.Color"
         android:id="@+id/photoBtn"
-        android:text="Сделать фото"
+        android:text="@string/makePhoto"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,7 +20,7 @@
     <Button
         style="@style/Button.Color"
         android:id="@+id/loadBtn"
-        android:text="Загрузить из галереи"
+        android:text="@string/fromGallery"
         app:layout_constraintBottom_toTopOf="@+id/photoBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
