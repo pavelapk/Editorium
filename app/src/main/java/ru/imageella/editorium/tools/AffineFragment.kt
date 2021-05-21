@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -47,9 +48,9 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         Point(-1f, -1f, Color.BLUE)
     )
     private val endPoints = arrayOf(
-        Point(-1f, -1f, Color.RED),
-        Point(-1f, -1f, Color.GREEN),
-        Point(-1f, -1f, Color.BLUE)
+        Point(-1f, -1f, Color.MAGENTA),
+        Point(-1f, -1f, Color.YELLOW),
+        Point(-1f, -1f, Color.CYAN)
     )
 
     private var curStart = 0
@@ -100,15 +101,14 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
 
     private fun switchState(newState: State) {
         state = newState
-        image?.clearOverlay()
         when (state) {
             State.START -> {
                 binding.endPointsToggle.isEnabled = false
-                drawPoints(startPoints)
+                drawAllPoints()
             }
             State.END -> {
                 binding.startPointsToggle.isEnabled = false
-                drawPoints(endPoints)
+                drawAllPoints()
             }
             State.NONE -> {
                 binding.startPointsToggle.isEnabled = true
@@ -119,9 +119,25 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         image?.refresh()
     }
 
-    private fun drawPoints(points: Array<Point>) {
+    private fun drawAllPoints() {
         image?.clearOverlay()
-        for (point in points) {
+        for (i in 0..2) {
+            if (startPoints[i].x >= 0 && startPoints[i].y >= 0 && endPoints[i].x >= 0 && endPoints[i].y >= 0) {
+                image?.drawLine(
+                    startPoints[i].x,
+                    startPoints[i].y,
+                    endPoints[i].x,
+                    endPoints[i].y,
+                    10f,
+                    Color.GRAY
+                )
+            }
+        }
+        for (point in startPoints) {
+            if (point.x >= 0 && point.y >= 0)
+                image?.drawPoint(point.x, point.y, 25f, point.color)
+        }
+        for (point in endPoints) {
             if (point.x >= 0 && point.y >= 0)
                 image?.drawPoint(point.x, point.y, 25f, point.color)
         }
@@ -133,13 +149,13 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
                 startPoints[curStart].x = x
                 startPoints[curStart].y = y
                 curStart = (curStart + 1) % 3
-                drawPoints(startPoints)
+                drawAllPoints()
             }
             State.END -> {
                 endPoints[curEnd].x = x
                 endPoints[curEnd].y = y
                 curEnd = (curEnd + 1) % 3
-                drawPoints(endPoints)
+                drawAllPoints()
             }
             else -> return
         }
@@ -161,8 +177,23 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         }
     }
 
+    private fun checkPointsExistence() =
+        startPoints.all { it.x >= 0 && it.y >= 0 } && endPoints.all { it.x >= 0 && it.y >= 0 }
+
+    private fun resetAllPoint() {
+        for (i in 0..2) {
+            startPoints[i].x = -1f
+            startPoints[i].y = -1f
+            endPoints[i].x = -1f
+            endPoints[i].y = -1f
+        }
+    }
 
     private suspend fun doAlgorithm() {
+        if (!checkPointsExistence()) {
+            Toast.makeText(context, getString(R.string.placeAllPoint), Toast.LENGTH_SHORT).show()
+            return
+        }
         val bmp = image?.getBitmap() ?: return
         val width = bmp.width
         val height = bmp.height
@@ -175,6 +206,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         image?.setBitmap(
             Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, bmp.config)
         )
+        resetAllPoint()
     }
 
     private fun triangleArea(a: Point, b: Point, c: Point): Float {

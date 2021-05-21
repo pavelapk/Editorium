@@ -17,5 +17,6 @@
     <string name="changeImg">Преобразовать</string>
     <string name="makePhoto">Сделать фото</string>
     <string name="fromGallery">Загрузить из галереи</string>
+    <string name="placeAllPoint">Поставьте все точки</string>
 
 </resources>
