@@ -1,6 +1,8 @@
 package ru.imageella.editorium.tools
 
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
@@ -30,13 +32,14 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
         var ratioElongationRight: Float
     )
 
-    private class Line(var point1: Point, var point2: Point, k: Float)
+    private class Line(var point1: Point, var point2: Point)
 
     private var image: ImageHandler? = null
+
     private var currentRatio = 0.5f
     private var currentRatioLeft = 1f
     private var currentRatioRight = 1f
-    private var indexPoint = 0
+    private var indexPoint = -1
     private var state = 1
     private var checkEditBtn = false
     private var allPoints = mutableListOf<Point>()
@@ -47,13 +50,19 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
 
         image = activity as? ImageHandler
 
-
-
         binding.addBtn.setOnClickListener {
             state = 1
+            if (checkEditBtn) {
+                checkEditBtn = !checkEditBtn
+                binding.editGroup.visibility = View.INVISIBLE
+            }
         }
         binding.deleteBtn.setOnClickListener {
             state = 0
+            if (checkEditBtn) {
+                checkEditBtn = !checkEditBtn
+                binding.editGroup.visibility = View.INVISIBLE
+            }
         }
         binding.editBtn.setOnClickListener {
             checkEditBtn = !checkEditBtn
@@ -61,6 +70,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                 binding.editGroup.visibility = View.VISIBLE
             } else {
                 binding.editGroup.visibility = View.INVISIBLE
+                indexPoint = -1
                 state = 1
             }
         }
@@ -142,12 +152,25 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
             allPoints.clear()
             allIntermediateLines.clear()
             state = 1
+            indexPoint = -1
             image?.clearOverlay()
             image?.refresh()
+            if (checkEditBtn) {
+                checkEditBtn = !checkEditBtn
+                binding.editGroup.visibility = View.INVISIBLE
+            }
         }
         binding.applyBtn.setOnClickListener {
             image?.clearOverlay()
             doAlgorithm()
+            image?.drawCanvasToImage()
+            allPoints.clear()
+            allIntermediateLines.clear()
+            state = 1
+            if (checkEditBtn) {
+                checkEditBtn = !checkEditBtn
+                binding.editGroup.visibility = View.INVISIBLE
+            }
         }
     }
 
@@ -158,20 +181,24 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
     }
 
     private fun movingBtn(x: Int, y: Int) {
-        allPoints[indexPoint].x = x.toFloat()
-        allPoints[indexPoint].y = y.toFloat()
-        drawPoints(allPoints)
-        doAlgorithm()
-        image?.drawLine(
-            allIntermediateLines[indexPoint - 1].point1.x,
-            allIntermediateLines[indexPoint - 1].point1.y,
-            allIntermediateLines[indexPoint - 1].point2.x,
-            allIntermediateLines[indexPoint - 1].point2.y,
-            5f,
-            Color.YELLOW
-        )
+        if (indexPoint != -1) {
+            allPoints[indexPoint].x = x.toFloat()
+            allPoints[indexPoint].y = y.toFloat()
+            drawPoints(allPoints)
+            doAlgorithm()
+            if (indexPoint != 0 && indexPoint != allPoints.size - 1) {
+                image?.drawLine(
+                    allIntermediateLines[indexPoint - 1].point1.x,
+                    allIntermediateLines[indexPoint - 1].point1.y,
+                    allIntermediateLines[indexPoint - 1].point2.x,
+                    allIntermediateLines[indexPoint - 1].point2.y,
+                    5f,
+                    Color.YELLOW
+                )
+            }
+            image?.refresh()
+        }
 
-        image?.refresh()
     }
 
     private fun drawPoints(points: MutableList<Point>) {
@@ -211,16 +238,10 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                 for (point in allPoints) {
                     if (abs(point.x - x) < 25 && abs(point.y - y) < 25) {
                         indexPoint = allPoints.indexOf(point)
-                        if (indexPoint != 0 && indexPoint != allPoints.size - 1) {
-//                            image.drawLine(allIntermediateLines[indexPoint-1].point1.x, allIntermediateLines[indexPoint-1].point1.y,allIntermediateLines[indexPoint-1].point2.x, allIntermediateLines[indexPoint-1].point2.y, 5f, Color.YELLOW)
-//                            image.refresh()
-                        }
-
                         break
                     }
                 }
             }
-            else -> 222
         }
         doAlgorithm()
         image?.refresh()
@@ -272,7 +293,7 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
         centreLine2.y = centreLine2.y + b
         centreLine1 = getCoordPoint(point, centreLine1, ratioElongationLeft)
         centreLine2 = getCoordPoint(point, centreLine2, ratioElongationRight)
-        val intermediateLine = Line(centreLine1, centreLine2, 1f)
+        val intermediateLine = Line(centreLine1, centreLine2)
 //       image.drawLine(intermediateLine.point1.x, intermediateLine.point1.y, intermediateLine.point2.x, intermediateLine.point2.y, 5f, Color.YELLOW)
 //       image.refresh()
         return intermediateLine
@@ -312,9 +333,10 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
 
     private fun doBezierCurve(p1: Point, p2: Point, p3: Point, p4: Point) {
 
-        val m = 10 //
+//        val m = 10 //
         val deltaT = 0.1f
         var t = 0f
+
 //        val mX = -3 * ((1 - t).pow(2)) * p1.x + 3 * (1 - 4 * t + 3 * (t.pow(2))) * p2.x +3 * t * (2 - 3 * t) * p3.x + 3 * (t.pow(2)) * p4.x
 //        val mY = -3 * ((1 - t).pow(2)) * p1.y + 3 * (1 - 4 * t + 3 * (t.pow(2))) * p2.y +3 * t * (2 - 3 * t) * p3.y + 3 * (t.pow(2)) * p4.y
 
@@ -349,10 +371,19 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                 5f,
                 Color.BLUE
             )
+//            if(state == 4){
+//                help(lastPoint, currentPoint)
+//            }
+//            else{
+//
+//            }
             t += deltaT
         }
         image?.drawLine(currentPoint.x, currentPoint.y, p4.x, p4.y, 5f, Color.BLUE)
         image?.refresh()
     }
 
+    private fun help(point1: Point, point2: Point) {
+
+    }
 }
