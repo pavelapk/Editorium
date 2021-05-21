@@ -17,6 +17,9 @@
     <style name="Button.Color">
         <item name="android:backgroundTint">@color/colorBackgroundButton</item>
     </style>
+    <style name="Button.Color.Size">
+        <item name="android:textSize">10sp</item>
+    </style>
     <style name="Text">
        <item name="android:textColor">@color/colorText</item>
     </style>
