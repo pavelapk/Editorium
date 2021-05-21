@@ -1,19 +1,21 @@
 package ru.imageella.editorium
 
+import android.content.ContentValues
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.imageella.editorium.databinding.ActivityStartBinding
 import java.io.File
 import java.io.IOException
-import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -25,6 +27,8 @@ class StartActivity : AppCompatActivity(R.layout.activity_start) {
 
     private val binding by viewBinding(ActivityStartBinding::bind, R.id.rootLayout)
 
+    private var photoURI: Uri? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -33,20 +37,28 @@ class StartActivity : AppCompatActivity(R.layout.activity_start) {
         }
 
         binding.photoBtn.setOnClickListener {
-            val photoFile: File? = try {
-                createImageFile()
-            } catch (ex: IOException) {
-                null
+            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+            val name = "JPEG_${timeStamp}"
+            val dir = Environment.DIRECTORY_DCIM + File.separator + "Editorium"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val resolver = contentResolver
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, "$name.jpg")
+                    put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, dir)
+                }
+                photoURI =
+                    resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            } else {
+                try {
+                    val storageDir = Environment.getExternalStoragePublicDirectory(dir)
+                    photoURI = Uri.fromFile(File(storageDir, "$name.jpg"))
+                } catch (ex: IOException) {
+                    Log.e("DAROVA", "create file", ex)
+                }
             }
-            // Continue only if the File was successfully created
-            photoFile?.also {
-                val photoURI: Uri = FileProvider.getUriForFile(
-                    this,
-                    "ru.imageella.fileprovider",
-                    it
-                )
-                takePicture.launch(photoURI)
-            }
+            photoURI?.let { takePicture.launch(it) }
+
         }
 
     }
@@ -57,9 +69,10 @@ class StartActivity : AppCompatActivity(R.layout.activity_start) {
         }
     }
 
+
     private val takePicture = registerForActivityResult(TakePicture()) { success: Boolean ->
         if (success) {
-            openProcessImage(File(currentPhotoPath).toUri())
+            photoURI?.let { openProcessImage(it) }
         }
     }
 
@@ -70,22 +83,5 @@ class StartActivity : AppCompatActivity(R.layout.activity_start) {
         }
         startActivity(intent)
     }
-
-    private lateinit var currentPhotoPath: String
-
-
-    private fun createImageFile(): File {
-        // Create an image file name
-        val timeStamp: String = DateFormat.getDateTimeInstance().format(Date())
-        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_",
-            ".jpg",
-            storageDir
-        ).apply {
-            currentPhotoPath = absolutePath
-        }
-    }
-
 
 }
