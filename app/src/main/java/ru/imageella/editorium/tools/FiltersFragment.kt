@@ -5,7 +5,11 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentFiltersToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
@@ -29,22 +33,22 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
         image = activity as? ImageHandler
 
         binding.filter1.setOnClickListener {
-            doAlgorithm(FilterType.SEPIA)
+            runCoroutine(FilterType.SEPIA)
         }
         binding.filter2.setOnClickListener {
-            doAlgorithm(FilterType.BW)
+            runCoroutine(FilterType.BW)
         }
         binding.filter3.setOnClickListener {
-            doAlgorithm(FilterType.NEGATIVE)
+            runCoroutine(FilterType.NEGATIVE)
         }
         binding.filter4.setOnClickListener {
-            doAlgorithm(FilterType.TOTALBW)
+            runCoroutine(FilterType.TOTALBW)
         }
         binding.filter5.setOnClickListener {
-            doAlgorithm(FilterType.BLUR)
+            runCoroutine(FilterType.BLUR)
         }
         binding.filter6.setOnClickListener {
-            doAlgorithm(FilterType.RED)
+            runCoroutine(FilterType.RED)
         }
 
     }
@@ -53,28 +57,37 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
         SEPIA, BW, NEGATIVE, TOTALBW, BLUR, RED
     }
 
-    private fun doAlgorithm(filterType: FilterType) {
+    private fun runCoroutine(filterType: FilterType) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            image?.progressIndicator(binding.root, true)
+            doAlgorithm(filterType)
+            image?.progressIndicator(binding.root, false)
+        }
+    }
+
+    private suspend fun doAlgorithm(filterType: FilterType) {
         val bmp = image?.getLastBitmap() ?: return
         val w = bmp.width
         val h = bmp.height
         val pixels = IntArray(w * h)
-        bmp.getPixels(pixels, 0, w, 0, 0, w, h)
-        for (x in 0 until w) {
-            for (y in 0 until h) {
-                val i = y * w + x
-                val oldPix: Int = pixels[i]
-                val oldRed: Int = Color.red(oldPix)
-                val oldBlue: Int = Color.blue(oldPix)
-                val oldGreen: Int = Color.green(oldPix)
-                val oldAlpha: Int = Color.alpha(oldPix)
-                pixels[i] = when (filterType) {
-                    FilterType.SEPIA -> sepiaFilter(oldAlpha, oldRed, oldGreen, oldBlue)
-                    FilterType.BW -> bwFilter(oldAlpha, oldRed, oldGreen, oldBlue)
-                    FilterType.NEGATIVE -> negativeFilter(oldAlpha, oldRed, oldGreen, oldBlue)
-                    FilterType.TOTALBW -> totalBwFilter(oldAlpha, oldRed, oldGreen, oldBlue)
-                    FilterType.BLUR -> blurFilter(pixels, x, y, w, h)
-                    FilterType.RED -> redFilter(oldAlpha, oldRed)
-
+        withContext(Dispatchers.Default) {
+            bmp.getPixels(pixels, 0, w, 0, 0, w, h)
+            for (x in 0 until w) {
+                for (y in 0 until h) {
+                    val i = y * w + x
+                    val oldPix: Int = pixels[i]
+                    val oldRed: Int = Color.red(oldPix)
+                    val oldBlue: Int = Color.blue(oldPix)
+                    val oldGreen: Int = Color.green(oldPix)
+                    val oldAlpha: Int = Color.alpha(oldPix)
+                    pixels[i] = when (filterType) {
+                        FilterType.SEPIA -> sepiaFilter(oldAlpha, oldRed, oldGreen, oldBlue)
+                        FilterType.BW -> bwFilter(oldAlpha, oldRed, oldGreen, oldBlue)
+                        FilterType.NEGATIVE -> negativeFilter(oldAlpha, oldRed, oldGreen, oldBlue)
+                        FilterType.TOTALBW -> totalBwFilter(oldAlpha, oldRed, oldGreen, oldBlue)
+                        FilterType.BLUR -> blurFilter(pixels, x, y, w, h)
+                        FilterType.RED -> redFilter(oldAlpha, oldRed)
+                    }
                 }
             }
         }
@@ -149,7 +162,6 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
         val l1 = (y - 6).coerceAtLeast(0)
         val k2 = (x + 6).coerceAtMost(w - 1)
         val l2 = (y + 6).coerceAtMost(h - 1)
-        var sum = 0
         for (t in k1 until k2) {
             for (j in l1 until l2) {
                 val num = j * w + t
@@ -158,16 +170,15 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
                 val oldBlue: Int = Color.blue(oldPix)
                 val oldGreen: Int = Color.green(oldPix)
 
-                sum += 1
                 red += oldRed
                 blue += oldBlue
                 green += oldGreen
             }
         }
 
-        val newRed: Int = red / sum
-        val newBlue: Int = blue / sum
-        val newGreen: Int = green / sum
+        val newRed: Int = red / pixels.size
+        val newBlue: Int = blue / pixels.size
+        val newGreen: Int = green / pixels.size
         return Color.argb(alpha, newRed, newGreen, newBlue)
     }
 

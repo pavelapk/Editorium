@@ -1,7 +1,6 @@
 package ru.imageella.editorium.utils
 
 import android.graphics.PointF
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import kotlin.math.atan2
@@ -69,15 +68,15 @@ class RotationGestureDetector(v: View, private val mListener: OnRotationGestureL
     }
 
     private fun angleBetweenLines(
-        fPoint: PointF,
-        sPoint: PointF,
-        nFpoint: PointF,
-        nSpoint: PointF
+        fPoint1: PointF,
+        sPoint1: PointF,
+        fPoint2: PointF,
+        sPoint2: PointF
     ): Float {
-        val angle1 = atan2((fPoint.y - sPoint.y).toDouble(), (fPoint.x - sPoint.x).toDouble())
+        val angle1 = atan2((fPoint1.y - sPoint1.y).toDouble(), (fPoint1.x - sPoint1.x).toDouble())
             .toFloat()
         val angle2 =
-            atan2((nFpoint.y - nSpoint.y).toDouble(), (nFpoint.x - nSpoint.x).toDouble())
+            atan2((fPoint2.y - sPoint2.y).toDouble(), (fPoint2.x - sPoint2.x).toDouble())
                 .toFloat()
         return angle2 - angle1
 

@@ -140,7 +140,7 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
             binding.overlayImage.setImageBitmap(overlayBitmap)
         }
 
-        binding.imgInfoTV.text = "${bitmap.width} x ${bitmap.height} px"
+        binding.imgInfoTV.text = getString(R.string.imgResolution, bitmap.width, bitmap.height)
     }
 
 

@@ -6,17 +6,17 @@
         <item
             android:id="@+id/actionUndo"
             android:icon="@drawable/ic_undo_24"
-            android:title="Отменить"
+            android:title="@string/undo"
             app:showAsAction="ifRoom" />
         <item
             android:id="@+id/actionRedo"
             android:icon="@drawable/ic_redo_24"
-            android:title="Вернуть"
+            android:title="@string/redo"
             app:showAsAction="ifRoom" />
         <item
             android:id="@+id/actionSave"
             android:icon="@drawable/ic_save_24"
-            android:title="Сохранить"
+            android:title="@string/save"
             app:showAsAction="always" />
     </group>
     <group
@@ -25,7 +25,7 @@
         <item
             android:id="@+id/actionDone"
             android:icon="@drawable/ic_done_24"
-            android:title="Применить"
+            android:title="@string/apply"
             app:showAsAction="always" />
     </group>
 </menu>

@@ -4,7 +4,6 @@ import android.graphics.Color
 import android.graphics.Path
 import android.os.Bundle
 import android.view.View
-import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import by.kirich1409.viewbindingdelegate.viewBinding
 import ru.imageella.editorium.R
@@ -15,7 +14,6 @@ import ru.imageella.editorium.utils.Cube
 import ru.imageella.editorium.utils.LinAlg.Companion.applyMatrix
 import ru.imageella.editorium.utils.LinAlg.Companion.prodMatrix
 import ru.imageella.editorium.utils.Vector
-import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -38,8 +36,6 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
 
     class Point(var x: Float, var y: Float)
 
-
-    private fun toRad(deg: Int): Float = (deg * PI / 180).toFloat()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
