@@ -4,5 +4,5 @@ interface Algorithm {
 
     fun doAlgorithm()
     fun onImageClick(x: Float, y: Float) {}
-    fun onImageTouchMove(x: Float, y: Float, isStart: Boolean) {}
+    fun onImageTouchMove(xRaw:Float, yRaw:Float, x: Float, y: Float, isStart: Boolean) {}
 }

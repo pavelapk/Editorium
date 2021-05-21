@@ -29,7 +29,7 @@ class RetouchingFragment : Fragment(R.layout.fragment_retouching_tool), Algorith
     private var sigma = 3.0
     private var radius = 10
 
-    override fun onImageTouchMove(x: Float, y: Float, isStart: Boolean) {
+    override fun onImageTouchMove(xRaw: Float, yRaw: Float, x: Float, y: Float, isStart: Boolean) {
         xRet = (x * image.getLastBitmap().width).toInt()
         yRet = (y * image.getLastBitmap().height).toInt()
         algorithm()

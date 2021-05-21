@@ -149,7 +149,7 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
     private var startAngleX = 0f
     private var startAngleY = 0f
 
-    override fun onImageTouchMove(x: Float, y: Float, isStart: Boolean) {
+    override fun onImageTouchMove(xRaw: Float, yRaw: Float, x: Float, y: Float, isStart: Boolean) {
         if (isStart) {
             startX = x
             startY = y

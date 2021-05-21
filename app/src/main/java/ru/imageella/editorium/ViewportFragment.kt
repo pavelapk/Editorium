@@ -44,6 +44,8 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
                 MotionEvent.ACTION_DOWN -> {
                     (activity as ImageHandler).onImageClick(event.x, event.y)
                     (activity as ImageHandler).onImageTouchMove(
+                        event.x,
+                        event.y,
                         event.x / v.width,
                         event.y / v.height,
                         true
@@ -52,9 +54,11 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
                 }
                 MotionEvent.ACTION_MOVE -> {
                     (activity as ImageHandler).onImageTouchMove(
+                        event.x,
+                        event.y,
                         event.x / v.width,
                         event.y / v.height,
-                        false
+                        true
                     )
                 }
             }

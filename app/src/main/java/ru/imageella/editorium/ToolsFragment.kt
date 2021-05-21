@@ -43,6 +43,10 @@ class ToolsFragment : Fragment(R.layout.fragment_tools) {
         binding.cubeToolBtn.setOnClickListener {
             (activity as? ToolSelectListener)?.onToolClick(9)
         }
+
+        binding.splineToolBtn.setOnClickListener {
+            (activity as? ToolSelectListener)?.onToolClick(5)
+        }
     }
 
 }
