@@ -15,4 +15,5 @@ interface Viewport {
     fun drawRect(l: Float, t: Float, r: Float, b: Float, width: Float, color: Int)
     fun clearOverlay()
     fun refresh()
+    fun drawCanvasToImage()
 }

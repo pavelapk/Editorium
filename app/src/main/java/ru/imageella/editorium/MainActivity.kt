@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
         currentBitmap = if (uri != null) {
             val imageStream: InputStream? = contentResolver.openInputStream(uri)
-            BitmapFactory.decodeStream(imageStream)
+            BitmapFactory.decodeStream(imageStream).copy(Bitmap.Config.ARGB_8888, true)
         } else {
             Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
         }
@@ -252,6 +252,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
     override fun refresh() {
         viewport.refresh()
+    }
+    override fun drawCanvasToImage(){
+        viewport.drawCanvasToImage()
     }
 
 }
