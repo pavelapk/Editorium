@@ -34,7 +34,7 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
         private const val rotateSpeed = 2f
     }
 
-    private lateinit var image: ImageHandler
+    private var image: ImageHandler? = null
 
     class Point(var x: Float, var y: Float)
 
@@ -44,11 +44,10 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        image = activity as ImageHandler
+        image = activity as? ImageHandler
 
         drawCube()
-        image.refresh()
-
+        image?.refresh()
     }
 
 
@@ -95,8 +94,8 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
     }
 
     private fun drawCube() {
-        image.clearOverlay()
-        val overlaySize = image.getOverlaySize()
+        image?.clearOverlay()
+        val overlaySize = image?.getOverlaySize() ?: 0 to 0
         val center = Point(overlaySize.first * 0.5f, overlaySize.second * 0.5f)
         val scale = min(overlaySize.first, overlaySize.second) * 1f
 
@@ -112,7 +111,7 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
                 for (i in 1 until points.size) {
                     path.lineTo(points[i].x, points[i].y)
                 }
-                image.drawPath(path, true, 5f, face.color)
+                image?.drawPath(path, true, 5f, face.color)
 
                 path.reset()
                 points =
@@ -121,7 +120,7 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
                 for (i in 1 until points.size) {
                     path.lineTo(points[i].x, points[i].y)
                 }
-                image.drawPath(path, false, 10f, Color.BLACK)
+                image?.drawPath(path, false, 10f, Color.BLACK)
 
             }
         }
@@ -135,7 +134,7 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
     private var lastX = 0f
     private var lastY = 0f
 
-    override fun onImageTouchMove(x: Float, y: Float, isStart: Boolean) {
+    override fun onImageTouchMove(xRaw: Float, yRaw: Float, x: Float, y: Float, isStart: Boolean) {
         if (!isStart) {
             val deltaX = (y - lastY) * -rotateSpeed
             val deltaY = (x - lastX) * rotateSpeed
@@ -144,13 +143,13 @@ class CubeFragment : Fragment(R.layout.fragment_cube_tool), Algorithm {
         lastX = x
         lastY = y
         drawCube()
-        image.refresh()
+        image?.refresh()
     }
 
     override fun onImageRotationGesture(angle: Float) {
         updateRotations(0f, 0f, angle)
         drawCube()
-        image.refresh()
+        image?.refresh()
     }
 
 

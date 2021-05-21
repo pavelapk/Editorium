@@ -22,12 +22,12 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
         fun newInstance() = UnsharpMaskingFragment()
     }
 
-    private lateinit var image: ImageHandler
+    private var image: ImageHandler? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        image = activity as ImageHandler
+        image = activity as? ImageHandler
         var sigma = 3.0
         var coef = 1.0
         binding.sigmaSeekBar2.setOnSeekBarChangeListener(object :
@@ -52,11 +52,12 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
         })
 
         binding.maskBtn.setOnClickListener {
-            val w = image.getLastBitmap().width
-            val h = image.getLastBitmap().height
+            val lastBmp = image?.getLastBitmap() ?: return@setOnClickListener
+            val w = lastBmp.width
+            val h = lastBmp.height
             val pixels = IntArray(w * h)
             val pixelsNew = IntArray(w * h)
-            image.getLastBitmap().getPixels(pixels, 0, w, 0, 0, w, h)
+            lastBmp.getPixels(pixels, 0, w, 0, 0, w, h)
 
             val sig2 = 2 * sigma * sigma
             val sizeWin = (3 * sigma).toInt()
@@ -157,8 +158,8 @@ class UnsharpMaskingFragment : Fragment(R.layout.fragment_unsharp_masking_tool),
                     pixels[i] = Color.argb(alpha, newRed, newGreen, newBlue)
                 }
             }
-            image.setBitmap(
-                Bitmap.createBitmap(pixels, w, h, image.getLastBitmap().config)
+            image?.setBitmap(
+                Bitmap.createBitmap(pixels, w, h, lastBmp.config)
             )
 
         }
