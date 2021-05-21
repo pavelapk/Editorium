@@ -41,6 +41,7 @@
         app:layout_constraintTop_toBottomOf="@+id/coefSeekBar" />
 
     <TextView
+        style="@style/Text"
         android:id="@+id/textViewForSigma"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
@@ -51,6 +52,7 @@
         app:layout_constraintTop_toTopOf="@+id/sigmaSeekBar2" />
 
     <TextView
+        style="@style/Text"
         android:id="@+id/textViewForCoef"
         android:layout_width="50dp"
         android:layout_height="wrap_content"

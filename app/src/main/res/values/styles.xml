@@ -10,4 +10,17 @@
         <item name="android:minWidth">48dp</item>
         <item name="android:minHeight">48dp</item>
     </style>
+    <style name="Button">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+    </style>
+    <style name="Button.Color">
+        <item name="android:backgroundTint">@color/ColorBackgroundButton</item>
+    </style>
+    <style name="Text">
+       <item name="android:textColor">@color/colorText</item>
+    </style>
+    <style name="ImgBtnColor">
+        <item name="backgroundTint">@color/colorImgBtn</item>
+    </style>
 </resources>
