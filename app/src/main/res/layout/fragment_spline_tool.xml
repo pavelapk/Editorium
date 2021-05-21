@@ -30,6 +30,7 @@
         app:layout_constraintTop_toTopOf="@+id/deleteBtn" />
 
     <Button
+        style="@style/Button.Color"
         android:id="@+id/editBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -41,6 +42,7 @@
         app:layout_constraintTop_toTopOf="@+id/deleteBtn" />
 
     <Button
+        style="@style/Button.Color"
         android:id="@+id/clearBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -52,10 +54,11 @@
         app:layout_constraintTop_toTopOf="@+id/deleteBtn" />
 
     <Button
+        style="@style/Button.Color"
         android:id="@+id/applyBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Применить"
+        android:text="@string/doAlgorithm"
         app:layout_constraintBottom_toBottomOf="@+id/deleteBtn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="3"
@@ -63,6 +66,7 @@
         app:layout_constraintTop_toTopOf="@+id/deleteBtn" />
 
     <Button
+        style="@style/Button.Color"
         android:id="@+id/movingBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"

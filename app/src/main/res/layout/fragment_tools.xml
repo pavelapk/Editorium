@@ -19,76 +19,77 @@
             android:orientation="horizontal">
 
             <ImageButton
-                style="@style/ImgBtnColor"
                 android:id="@+id/rotateToolBtn"
+                style="@style/ImgBtnColor"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/ic_rotate_tool_80" />
+                app:srcCompat="@drawable/ic_arrow_counterclockwise" />
 
             <ImageButton
-                style="@style/ImgBtnColor"
                 android:id="@+id/filtersToolBtn"
+                style="@style/ImgBtnColor"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="?android:attr/listChoiceIndicatorMultiple" />
+                app:srcCompat="@drawable/ic_subtract" />
 
             <ImageButton
-                style="@style/ImgBtnColor"
                 android:id="@+id/scaleToolBtn"
+                style="@style/ImgBtnColor"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="@android:drawable/btn_star_big_on" />
+                app:srcCompat="@drawable/ic_arrows_fullscreen"
+                tools:srcCompat="@drawable/ic_arrows_fullscreen" />
 
             <ImageButton
-                style="@style/ImgBtnColor"
                 android:id="@+id/faceToolBtn"
+                style="@style/ImgBtnColor"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="@android:drawable/ic_menu_my_calendar" />
+                app:srcCompat="@drawable/ic_person_bounding_box" />
 
             <ImageButton
-                style="@style/ImgBtnColor"
                 android:id="@+id/splineToolBtn"
+                style="@style/ImgBtnColor"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="@android:drawable/ic_menu_edit" />
+                app:srcCompat="@drawable/ic_line_alt" />
 
             <ImageButton
-                style="@style/ImgBtnColor"
                 android:id="@+id/retouchingToolBtn"
+                style="@style/ImgBtnColor"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="@android:drawable/ic_menu_mylocation" />
+                app:srcCompat="@drawable/ic_droplet_fill" />
 
             <ImageButton
-                style="@style/ImgBtnColor"
                 android:id="@+id/unsharpMaskingToolBtn"
+                style="@style/ImgBtnColor"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="?android:attr/textSelectHandle" />
+                app:srcCompat="@drawable/ic_circle_half" />
 
             <ImageButton
-                style="@style/ImgBtnColor"
                 android:id="@+id/affineToolBtn"
+                style="@style/ImgBtnColor"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="@android:drawable/ic_menu_compass" />
+                app:srcCompat="@drawable/ic_group_share" />
 
             <ImageButton
-                style="@style/ImgBtnColor"
                 android:id="@+id/cubeToolBtn"
+                style="@style/ImgBtnColor"
                 android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                app:srcCompat="@android:drawable/picture_frame" />
+                app:srcCompat="@drawable/ic__d_box" />
         </LinearLayout>
     </HorizontalScrollView>
 </FrameLayout>

@@ -7,6 +7,7 @@
     android:layout_height="match_parent">
 
     <ToggleButton
+        style="@style/DarkBtn"
         android:id="@+id/startPointsToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,6 +20,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ToggleButton
+        style="@style/DarkBtn"
         android:id="@+id/endPointsToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

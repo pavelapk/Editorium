@@ -54,7 +54,7 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
     }
 
     private fun doAlgorithm(filterType: FilterType) {
-        val bmp = image?.getLastBitmap()?: return
+        val bmp = image?.getLastBitmap() ?: return
         val w = bmp.width
         val h = bmp.height
         val pixels = IntArray(w * h)
@@ -68,10 +68,10 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
                 val oldGreen: Int = Color.green(oldPix)
                 val oldAlpha: Int = Color.alpha(oldPix)
                 pixels[i] = when (filterType) {
-                    FilterType.SEPIA -> sepiaFilter(oldAlpha,oldRed, oldGreen, oldBlue)
-                    FilterType.BW -> bwFilter(oldAlpha,oldRed, oldGreen, oldBlue)
-                    FilterType.NEGATIVE -> negativeFilter(oldAlpha,oldRed, oldGreen, oldBlue)
-                    FilterType.TOTALBW -> totalBwFilter(oldAlpha,oldRed, oldGreen, oldBlue)
+                    FilterType.SEPIA -> sepiaFilter(oldAlpha, oldRed, oldGreen, oldBlue)
+                    FilterType.BW -> bwFilter(oldAlpha, oldRed, oldGreen, oldBlue)
+                    FilterType.NEGATIVE -> negativeFilter(oldAlpha, oldRed, oldGreen, oldBlue)
+                    FilterType.TOTALBW -> totalBwFilter(oldAlpha, oldRed, oldGreen, oldBlue)
                     FilterType.BLUR -> blurFilter(pixels, x, y, w, h)
                     FilterType.RED -> redFilter(oldAlpha, oldRed)
 
@@ -83,7 +83,7 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
         )
     }
 
-    private fun sepiaFilter(a: Int, r: Int,g:Int, b:Int): Int {
+    private fun sepiaFilter(a: Int, r: Int, g: Int, b: Int): Int {
         var newGreen: Int = (0.25 * r + 0.65 * g + 0.18 * b).toInt()
         var newRed: Int = (0.3 * r + 0.68 * g + 0.25 * b).toInt()
         var newBlue: Int = (0.18 * r + 0.5 * g + 0.1 * b).toInt()
@@ -99,7 +99,8 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
 
         return Color.argb(a, newRed, newGreen, newBlue)
     }
-    private fun bwFilter(a: Int, r: Int,g:Int, b:Int): Int{
+
+    private fun bwFilter(a: Int, r: Int, g: Int, b: Int): Int {
         val intensity: Int = (b + g + r) / 3
         val newRed: Int = intensity
         val newBlue: Int = intensity
@@ -107,14 +108,16 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
 
         return Color.argb(a, newRed, newGreen, newBlue)
     }
-    private fun negativeFilter(a: Int, r: Int,g:Int, b:Int): Int{
+
+    private fun negativeFilter(a: Int, r: Int, g: Int, b: Int): Int {
         val newRed: Int = 255 - r
         val newBlue: Int = 255 - b
         val newGreen: Int = 255 - g
 
         return Color.argb(a, newRed, newGreen, newBlue)
     }
-    private fun totalBwFilter(a: Int, r: Int,g:Int, b:Int): Int{
+
+    private fun totalBwFilter(a: Int, r: Int, g: Int, b: Int): Int {
         val intensity: Int = (b + g + r) / 3
         val intCoef = 120
         return when {
@@ -129,11 +132,12 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
             }
         }
     }
+
     private fun redFilter(a: Int, r: Int): Int {
         return Color.argb(a, r, 0, 0)
     }
 
-    private fun blurFilter(pixels:IntArray, x:Int, y:Int, w:Int, h:Int): Int{
+    private fun blurFilter(pixels: IntArray, x: Int, y: Int, w: Int, h: Int): Int {
         val i = y * w + x
         val pix = pixels[i]
         var red = 0
@@ -143,8 +147,9 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
 
         val k1 = (x - 6).coerceAtLeast(0)
         val l1 = (y - 6).coerceAtLeast(0)
-        val k2 =(x + 6).coerceAtMost(w - 1)
+        val k2 = (x + 6).coerceAtMost(w - 1)
         val l2 = (y + 6).coerceAtMost(h - 1)
+        var sum = 0
         for (t in k1 until k2) {
             for (j in l1 until l2) {
                 val num = j * w + t
@@ -153,15 +158,16 @@ class FiltersFragment : Fragment(R.layout.fragment_filters_tool), Algorithm {
                 val oldBlue: Int = Color.blue(oldPix)
                 val oldGreen: Int = Color.green(oldPix)
 
+                sum += 1
                 red += oldRed
                 blue += oldBlue
                 green += oldGreen
             }
         }
 
-        val newRed: Int = red / pixels.size
-        val newBlue: Int = blue / pixels.size
-        val newGreen: Int = green / pixels.size
+        val newRed: Int = red / sum
+        val newBlue: Int = blue / sum
+        val newGreen: Int = green / sum
         return Color.argb(alpha, newRed, newGreen, newBlue)
     }
 

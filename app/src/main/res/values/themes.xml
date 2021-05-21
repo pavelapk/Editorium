@@ -2,14 +2,14 @@
     <!-- Base application theme. -->
     <style name="Theme.Editorium" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/ColorBackgroundButton</item>
-        <item name="colorPrimaryVariant">@color/ColorBackgroundBtnDark</item>
+        <item name="colorPrimary">@color/colorBackgroundButton</item>
+        <item name="colorPrimaryVariant">@color/colorBackgroundBtnDark</item>
         <item name="colorOnPrimary">@color/white</item>
-        <item name="android:windowBackground">@color/ColorBackgroundLight</item>
-        <item name="android:colorBackground">@color/ColorBackgroundLight</item>
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/ColorBackgroundButton</item>
-        <item name="colorSecondaryVariant">@color/ColorBackgroundBtnDark</item>
+        <item name="colorSecondary">@color/colorBackgroundButton</item>
+        <item name="colorSecondaryVariant">@color/colorBackgroundBtnDark</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/white</item>

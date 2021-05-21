@@ -15,12 +15,15 @@
         <item name="android:layout_width">wrap_content</item>
     </style>
     <style name="Button.Color">
-        <item name="android:backgroundTint">@color/ColorBackgroundButton</item>
+        <item name="android:backgroundTint">@color/colorBackgroundButton</item>
     </style>
     <style name="Text">
        <item name="android:textColor">@color/colorText</item>
     </style>
     <style name="ImgBtnColor">
         <item name="backgroundTint">@color/colorImgBtn</item>
+    </style>
+    <style name="DarkBtn">
+        <item name="backgroundTint">@color/colorBackgroundBtnDark</item>
     </style>
 </resources>
