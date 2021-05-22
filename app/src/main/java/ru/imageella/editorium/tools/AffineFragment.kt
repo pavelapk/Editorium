@@ -19,6 +19,7 @@ import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.utils.PixelsWithSizes
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -200,12 +201,17 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         val pixels = IntArray(width * height)
         bmp.getPixels(pixels, 0, width, 0, 0, width, height)
 
-        var curPic = PixelsWithSizes(pixels, width, height)
+        val curPic = PixelsWithSizes(pixels, width, height)
 
-        curPic = transformPic(curPic)
-        image?.setBitmap(
-            Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, bmp.config)
-        )
+        val newPic = transformPic(curPic)
+        if (newPic == null) {
+            Toast.makeText(context, "Слишком большое разрешение", Toast.LENGTH_SHORT).show()
+            return
+        } else {
+            image?.setBitmap(
+                Bitmap.createBitmap(newPic.pixels, newPic.w, newPic.h, bmp.config)
+            )
+        }
         resetAllPoint()
     }
 
@@ -239,11 +245,14 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
         return arrayOf(nw, nh, l, t)
     }
 
-    private suspend fun transformPic(pic: PixelsWithSizes): PixelsWithSizes =
+    private suspend fun transformPic(pic: PixelsWithSizes): PixelsWithSizes? =
         withContext(Dispatchers.Default) {
             val w = pic.w
             val h = pic.h
             val (nw, nh, l, t) = calcNewSizes(w, h)
+            if (max(nw, nh) > 8000) {
+                return@withContext null
+            }
             val matrix = AffineMatrix.calcMatrix(endPoints, startPoints)
             val oldArea = triangleArea(startPoints[0], startPoints[1], startPoints[2])
             val newArea = triangleArea(endPoints[0], endPoints[1], endPoints[2])
@@ -298,7 +307,7 @@ class AffineFragment : Fragment(R.layout.fragment_affine_tool), Algorithm {
                 }
             }
 
-            PixelsWithSizes(newPic, nw, nh)
+            return@withContext PixelsWithSizes(newPic, nw, nh)
         }
 
 }

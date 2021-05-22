@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -19,6 +20,7 @@ import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.utils.PixelsWithSizes
 import kotlin.math.ceil
+import kotlin.math.max
 
 class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
 
@@ -67,6 +69,10 @@ class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
         val height = bmp.height
         val nw = ceil(width * currentRatio).toInt()
         val nh = ceil(height * currentRatio).toInt()
+        if (max(nw, nh) > 8000) {
+            Toast.makeText(context, "Слишком большое разрешение", Toast.LENGTH_SHORT).show()
+            return
+        }
         val pixels = IntArray(width * height)
         val newPixels = IntArray(nw * nh)
 

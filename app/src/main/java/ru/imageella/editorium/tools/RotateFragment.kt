@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -16,6 +17,7 @@ import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
 import ru.imageella.editorium.utils.PixelsWithSizes
 import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
@@ -70,19 +72,23 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
         val pixels = IntArray(width * height)
         bmp.getPixels(pixels, 0, width, 0, 0, width, height)
 
-        var curPic = PixelsWithSizes(
+        val curPic = PixelsWithSizes(
             pixels,
             width,
             height
         )
 
         val angle = Math.toRadians(rotation.toDouble())
-        curPic = rotatePic(curPic, angle)
-
-        binding.angleSeekBar.progress = 0
-        image?.setBitmap(
-            Bitmap.createBitmap(curPic.pixels, curPic.w, curPic.h, bmp.config)
-        )
+        val newPic = rotatePic(curPic, angle)
+        if (newPic == null) {
+            Toast.makeText(context, "Слишком большое разрешение", Toast.LENGTH_SHORT).show()
+            return
+        } else {
+            binding.angleSeekBar.progress = 0
+            image?.setBitmap(
+                Bitmap.createBitmap(newPic.pixels, newPic.w, newPic.h, bmp.config)
+            )
+        }
     }
 
     private fun roundCoord(xy: Pair<Double, Double>): Pair<Int, Int> =
@@ -116,11 +122,15 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
         return arrayOf(nw, nh, l, t)
     }
 
-    private suspend fun rotatePic(pic: PixelsWithSizes, angle: Double) =
+    private suspend fun rotatePic(pic: PixelsWithSizes, angle: Double): PixelsWithSizes? =
         withContext(Dispatchers.Default) {
             val w = pic.w
             val h = pic.h
             val (nw, nh, l, t) = calcNewSizes(w, h, angle)
+
+            if (max(nw, nh) > 8000) {
+                return@withContext null
+            }
 
             val newPic = IntArray(nw * nh)
             val s = sin(-angle)
@@ -137,7 +147,7 @@ class RotateFragment : Fragment(R.layout.fragment_rotate_tool), Algorithm {
                 }
             }
 
-            PixelsWithSizes(newPic, nw, nh)
+            return@withContext PixelsWithSizes(newPic, nw, nh)
         }
 
 
