@@ -23,5 +23,6 @@
     <string name="apply">Применить</string>
     <string name="writePermissionRationale">Для сохранения фото необходимо разрешение на запись файлов</string>
     <string name="writePermissionRationaleBlocked">Для сохранения фото необходимо разрешение на запись файлов, пожалуйста включите его в информации о приложении</string>
+    <string name="selectPoint">выбрать точку</string>
 
 </resources>
