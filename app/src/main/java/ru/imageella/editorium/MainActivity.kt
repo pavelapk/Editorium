@@ -79,8 +79,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
                 lastBitmap?.let { setBitmap(it) }
                 closeTool()
             } else {
-//                val intent = Intent(this, StartActivity::class.java)
-//                startActivity(intent)
                 finish()
             }
             true
@@ -127,6 +125,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
                     .show()
                 e.printStackTrace()
             }
+        }
+    }
+
+    override fun onBackPressed() {
+        if (isToolActive) {
+            lastBitmap?.let { setBitmap(it) }
+            closeTool()
+        } else {
+            super.onBackPressed()
         }
     }
 

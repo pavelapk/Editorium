@@ -7,10 +7,8 @@
     android:layout_height="@dimen/tool_height">
 
     <ToggleButton
-        style="@style/DarkBtn"
         android:id="@+id/startPointsToggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/DarkBtn"
         android:textOff="@string/startPoints"
         android:textOn="@string/place"
         app:layout_constraintBottom_toTopOf="@+id/transformBtn"
@@ -20,10 +18,8 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ToggleButton
-        style="@style/DarkBtn"
         android:id="@+id/endPointsToggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/DarkBtn"
         android:textOff="@string/endPoints"
         android:textOn="@string/place"
         app:layout_constraintBottom_toTopOf="@+id/transformBtn"
