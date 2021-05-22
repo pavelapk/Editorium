@@ -97,7 +97,7 @@ class StartActivity : AppCompatActivity(R.layout.activity_start) {
                 val appDir = File(storageDir, appDirName)
                 if (!appDir.exists()) {
                     if (!appDir.mkdirs()) {
-                        Log.d("MyCameraApp", "failed to create directory");
+                        Log.d("MyCameraApp", "failed to create directory")
                     }
                 }
                 photoURI = FileProvider.getUriForFile(
