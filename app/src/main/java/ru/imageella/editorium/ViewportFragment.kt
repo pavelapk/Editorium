@@ -125,7 +125,7 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
                 null
             )
         }
-        setBitmap(bmp)
+        image?.setBitmap(bmp)
     }
 
     override fun setBitmap(bitmap: Bitmap) {
