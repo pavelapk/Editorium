@@ -115,7 +115,7 @@ class ViewportFragment : Fragment(R.layout.fragment_viewport), Viewport {
     }
 
     override fun drawCanvasToImage() {
-        val bmp = image?.getBitmap() ?: return
+        val bmp = image?.getBitmap()?.copy(Bitmap.Config.ARGB_8888, true) ?: return
         val imageCanvas = Canvas(bmp)
         overlayBitmap?.let {
             imageCanvas.drawBitmap(

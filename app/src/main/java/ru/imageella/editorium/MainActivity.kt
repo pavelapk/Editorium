@@ -47,10 +47,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), ToolSelectListen
 
 
         currentBitmap = uri?.let {
-            BitmapFactory.decodeStream(
-                contentResolver.openInputStream(it),
-                null,
-                BitmapFactory.Options().apply { inMutable = true })
+            BitmapFactory.decodeStream(contentResolver.openInputStream(it))
         } ?: Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888)
 
         val viewportFragment = ViewportFragment.newInstance()
