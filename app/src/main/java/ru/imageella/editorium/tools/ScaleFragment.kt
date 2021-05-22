@@ -134,12 +134,12 @@ class ScaleFragment : Fragment(R.layout.fragment_scale_tool), Algorithm {
         image?.setBitmap(
             Bitmap.createBitmap(newPixels, nw, nh, bmp.config)
         )
-        binding.ratioSeekBar.progress = 3 // 1.0x
+        binding.ratioSeekBar.progress = 7 // 1.0x
     }
 
 
     private fun setPreviewScale(ratio: Float) {
-        currentRatio = (ratio + 1) / 4
+        currentRatio = (ratio + 1) / 8
         image?.previewScale(currentRatio)
         binding.ratioTV.text = currentRatio.toString()
     }

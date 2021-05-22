@@ -10,7 +10,9 @@ import ru.imageella.editorium.R
 import ru.imageella.editorium.databinding.FragmentSplineToolBinding
 import ru.imageella.editorium.interfaces.Algorithm
 import ru.imageella.editorium.interfaces.ImageHandler
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.round
 
 class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
 
