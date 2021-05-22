@@ -1,8 +1,6 @@
 package ru.imageella.editorium.tools
 
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
@@ -195,6 +193,9 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                     5f,
                     Color.YELLOW
                 )
+                binding.rotateSeekBar.progress = 50
+                binding.elongationLeftSeekBar.progress = 50
+                binding.elongationRightSeekBar.progress = 50
             }
             image?.refresh()
         }
@@ -278,29 +279,27 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
             1f
         )
         val k = line1 / line2
-        val B = Point(
+        val pointB = Point(
             ((centreLine1.x + k * centreLine2.x) / (1 + k)),
             (centreLine1.y + k * centreLine2.y) / (1 + k),
             0.5f,
             1f,
             1f
         )
-        val a = point.x - B.x
-        val b = point.y - B.y
+        val a = point.x - pointB.x
+        val b = point.y - pointB.y
         centreLine1.x = (centreLine1.x + a)
         centreLine1.y = (centreLine1.y + b)
         centreLine2.x = centreLine2.x + a
         centreLine2.y = centreLine2.y + b
         centreLine1 = getCoordPoint(point, centreLine1, ratioElongationLeft)
         centreLine2 = getCoordPoint(point, centreLine2, ratioElongationRight)
-        val intermediateLine = Line(centreLine1, centreLine2)
 //       image.drawLine(intermediateLine.point1.x, intermediateLine.point1.y, intermediateLine.point2.x, intermediateLine.point2.y, 5f, Color.YELLOW)
 //       image.refresh()
-        return intermediateLine
+        return Line(centreLine1, centreLine2)
     }
 
     private fun doAlgorithm() {
-//        var lastPoint: Point? = null
         var currentLine: Line
         var lastLine: Line? = null
         allIntermediateLines.clear()
@@ -371,19 +370,9 @@ class SplineFragment : Fragment(R.layout.fragment_spline_tool), Algorithm {
                 5f,
                 Color.BLUE
             )
-//            if(state == 4){
-//                help(lastPoint, currentPoint)
-//            }
-//            else{
-//
-//            }
             t += deltaT
         }
         image?.drawLine(currentPoint.x, currentPoint.y, p4.x, p4.y, 5f, Color.BLUE)
         image?.refresh()
-    }
-
-    private fun help(point1: Point, point2: Point) {
-
     }
 }
